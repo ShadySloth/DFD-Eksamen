@@ -1,34 +1,33 @@
-
-using Database_Benchmarking.Domain.Entities;
+﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
 
-public class PostgresArticleRepository : IArticleRepository
+public class PostgresGenreRepository : IGenreRepository
 {
     private readonly PostgresDbContext _context;
-    public PostgresArticleRepository(PostgresDbContext context)
+    public PostgresGenreRepository(PostgresDbContext context)
     {
         _context = context;
     }
-
-    public IEnumerable<Article> GetAll()
+    
+    public IEnumerable<Genre> GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public Article GetById(EntityId id)
+    public Genre GetById(EntityId id)
     {
         throw new NotImplementedException();
     }
 
-    public Article Create(Article article)
+    public Genre Create(Genre genre)
     {
         throw new NotImplementedException();
     }
 
-    public Article Update(Article article)
+    public Genre Update(Genre genre)
     {
         throw new NotImplementedException();
     }

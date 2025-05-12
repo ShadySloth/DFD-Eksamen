@@ -1,34 +1,33 @@
-
-using Database_Benchmarking.Domain.Entities;
+﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
 
-public class PostgresArticleRepository : IArticleRepository
+public class PostgresAuthorRepository : IAuthorRepository
 {
     private readonly PostgresDbContext _context;
-    public PostgresArticleRepository(PostgresDbContext context)
+    public PostgresAuthorRepository(PostgresDbContext context)
     {
         _context = context;
     }
-
-    public IEnumerable<Article> GetAll()
+    
+    public IEnumerable<Author> GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public Article GetById(EntityId id)
+    public Author GetById(EntityId id)
     {
         throw new NotImplementedException();
     }
 
-    public Article Create(Article article)
+    public Author Create(Author author)
     {
         throw new NotImplementedException();
     }
 
-    public Article Update(Article article)
+    public Author Update(Author author)
     {
         throw new NotImplementedException();
     }
