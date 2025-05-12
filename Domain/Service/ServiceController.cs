@@ -6,15 +6,12 @@ public class ServiceController(DatabaseType databaseType) : IServiceController
 {
     private RepositoryFactory GetRepositoryFactory()
     {
-        switch (databaseType)
+        return databaseType switch
         {
-            case DatabaseType.Relational:
-                return new RepositoryFactory(new PostgresDbContext());
-            case DatabaseType.NoSql:
-                return new RepositoryFactory(new MongoDbContext());
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            DatabaseType.Relational => new RepositoryFactory(new PostgresDbContext()),
+            DatabaseType.NoSql => new RepositoryFactory(new MongoDbContext()),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
     
     public TimeSpan CreateArticles(int count)
