@@ -11,4 +11,6 @@ public class Genre
 
     [Required]
     public string Type { get; set; }
+
+    public ICollection<Article> Articles { get; set; }
 }
