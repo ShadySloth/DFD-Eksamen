@@ -13,7 +13,7 @@ public class Article
     public string Title { get; set; }
 
     [Required]
-    public int AuthorId { get; set; }
+    public EntityId AuthorId { get; set; }
 
     [Required]
     public string BodyText { get; set; }
