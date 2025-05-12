@@ -23,5 +23,5 @@ public class Article
 
     public Author Author { get; set; }
 
-    public ICollection<GenreOnArticle> Genres { get; set; }
+    public ICollection<Genre> Genres { get; set; }
 }

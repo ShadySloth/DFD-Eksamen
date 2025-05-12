@@ -11,6 +11,4 @@ public class Author
 
     [Required]
     public string Name { get; set; }
-
-    public ICollection<Article> Articles { get; set; }
 }
