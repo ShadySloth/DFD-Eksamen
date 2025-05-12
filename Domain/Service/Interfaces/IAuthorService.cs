@@ -1,8 +1,8 @@
 using Database_Benchmarking.Domain.Entities;
 
-namespace Database_Benchmarking.Infrastructure.Repository.Interfaces;
+namespace Database_Benchmarking.Domain.Service.Interfaces;
 
-public interface IAuthorRepository
+public interface IAuthorService
 {
     TimeSpan GetAll();
     TimeSpan GetById(ICollection<EntityId> ids);

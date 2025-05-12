@@ -4,9 +4,9 @@ namespace Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 public interface IGenreRepository
 {
-    IEnumerable<Genre> GetAll();
-    Genre GetById(EntityId id); 
-    Genre Create(Genre genre);
-    Genre Update(Genre genre);
-    void Delete(EntityId id);
+    TimeSpan GetAll();
+    TimeSpan GetById(ICollection<EntityId> id); 
+    TimeSpan Create(ICollection<Genre> genre);
+    TimeSpan Update(ICollection<Genre> genre);
+    TimeSpan Delete(ICollection<EntityId> id);
 }
