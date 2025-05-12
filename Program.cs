@@ -1,4 +1,6 @@
-﻿class Program
+﻿namespace Database_Benchmarking;
+
+static class Program
 {
     static void Main(string[] args)
     {
@@ -14,8 +16,10 @@
             Console.WriteLine("\t2. NoSQL");
             Console.WriteLine();
             Console.Write("Your choice: ");
-
-            switch (Console.ReadLine())
+            
+            var choice = GetValidInput(["1", "2"]);
+            
+            switch (choice)
             {
                 case "1":
                     BenchmarkRelational();
@@ -37,9 +41,22 @@
         return;
     }
 
+    private static string GetValidInput(string[] validInputs)
+    {
+        string input;
+        do
+        {
+            input = Console.ReadLine()!;
+            if (Array.Exists(validInputs, inputs => inputs == input))
+                return input;
+
+            Console.WriteLine("Invalid input. Please try again.");
+            Console.Write("Your choice: ");
+        } while (true);
+    }
+    
     private static void BenchmarkRelational()
     {
-        // Code to benchmark relational databases
         Console.WriteLine();
         Console.WriteLine("Pick a benchmarking method:");
         Console.WriteLine("\t1. Insert");
@@ -50,7 +67,9 @@
         Console.WriteLine();
         
         Console.Write("Your choice: ");
-        switch (Console.ReadLine())
+        
+        var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+        switch (choice)
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
@@ -68,12 +87,10 @@
                 Console.WriteLine("Benchmarking All...");
                 break;
         }
-        // Add your benchmarking logic here
     }
 
     private static void BenchmarkNoSql()
     {
-        // Code to benchmark NoSQL databases
         Console.WriteLine();
         Console.WriteLine("Pick a benchmarking method:");
         Console.WriteLine("\t1. Insert");
@@ -84,7 +101,9 @@
         Console.WriteLine();
         
         Console.Write("Your choice: ");
-        switch (Console.ReadLine())
+        var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+        
+        switch (choice)
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
@@ -102,6 +121,5 @@
                 Console.WriteLine("Benchmarking All...");
                 break;
         }
-        // Add your benchmarking logic here
     }
 }
