@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Mapper;
@@ -16,35 +17,68 @@ public class MongoArticleRepository : IArticleRepository
         _context = context;
     }
 
-    public IEnumerable<Article> GetAll()
+    public TimeSpan GetAll()
     {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         var articles = _context.Articles.Find(_ => true).ToList();
-        return articles.Select(EntityMapper.ToDomainEntity);
+        stopwatch.Stop();
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Article GetById(EntityId id)
+    public TimeSpan GetById(ICollection<EntityId> ids)
     {
-        var article = _context.Articles.Find(articleDbModel => articleDbModel.Id == new ObjectId(id.Value))
-            .FirstOrDefault();
-        return EntityMapper.ToDomainEntity(article);
+        Stopwatch stopwatch = new Stopwatch();
+        foreach (var id in ids)
+        {
+            stopwatch.Start();
+            var article = _context.Articles.Find(articleDbModel => articleDbModel.Id == new ObjectId(id.Value))
+                .FirstOrDefault();
+            stopwatch.Stop();
+        }
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Article Create(Article article)
+    public TimeSpan Create(ICollection<Article> articles)
     {
-        var articleDbModel = EntityMapper.ToDbModel(article);
-        _context.Articles.InsertOne(articleDbModel);
-        return EntityMapper.ToDomainEntity(articleDbModel);
+        Stopwatch stopwatch = new Stopwatch();
+        foreach (var article in articles)
+        {
+            var articleDbModel = EntityMapper.ToDbModel(article);
+            stopwatch.Start();
+            _context.Articles.InsertOne(articleDbModel);
+            stopwatch.Stop();
+        }
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Article Update(Article article)
+    public TimeSpan Update(ICollection<Article> articles)
     {
-        var replacementArticle = EntityMapper.ToDbModel(article);
-        _context.Articles.ReplaceOne(articleDbModel => articleDbModel.Id == new ObjectId(article.Id.Value), replacementArticle);
-        return EntityMapper.ToDomainEntity(replacementArticle);
+        Stopwatch stopwatch = new Stopwatch();
+        foreach (var article in articles)
+        {
+            var replacementArticle = EntityMapper.ToDbModel(article);
+            stopwatch.Start();
+            _context.Articles.ReplaceOne(articleDbModel => articleDbModel.Id == new ObjectId(article.Id.Value), replacementArticle);
+            stopwatch.Stop();
+        }
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public void Delete(EntityId id)
+    public TimeSpan Delete(ICollection<EntityId> ids)
     {
-        _context.Articles.DeleteOne(article => article.Id == new ObjectId(id.Value));
+        Stopwatch stopwatch = new Stopwatch();
+        foreach (var id in ids)
+        {
+            stopwatch.Start();
+            _context.Articles.DeleteOne(article => article.Id == new ObjectId(id.Value));
+            stopwatch.Stop();
+        }
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 }
