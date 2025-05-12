@@ -12,5 +12,5 @@ public class Genre
     [Required]
     public string Type { get; set; }
 
-    public ICollection<GenreOnArticle> Articles { get; set; }
+    public ICollection<Article> Articles { get; set; }
 }
