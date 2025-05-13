@@ -46,36 +46,43 @@ public class ServiceController : IServiceController
 
     public TimeSpan GetAllArticles(int count)
     {
-        throw new NotImplementedException();
+        var articles = _mockDataService.GenerateMockArticles(count);
+        return _articleService.GetAllArticles(articles);
     }
 
     public TimeSpan DeleteArticles(int count)
     {
-        throw new NotImplementedException();
+        var articles = _mockDataService.GenerateMockArticles(count);
+        return _articleService.DeleteArticle(articles);
     }
 
     public TimeSpan UpdateArticles(int count)
     {
-        throw new NotImplementedException();
+        var articles = _mockDataService.GenerateMockArticles(count);
+        return _articleService.UpdateArticle(articles);
     }
 
     public TimeSpan CreateAuthors(int count)
     {
-        throw new NotImplementedException();
+        var authors = _mockDataService.GenerateMockAuthors(count);
+        return _authorService.Create(authors);
     }
 
     public TimeSpan GetAllAuthors(int count)
     {
-        throw new NotImplementedException();
+        var authors = _mockDataService.GenerateMockAuthors(count);
+        return _authorService.GetAll(authors);
     }
 
     public TimeSpan DeleteAuthors(int count)
     {
-        throw new NotImplementedException();
+        var authors = _mockDataService.GenerateMockAuthors(count);
+        return _authorService.Delete(authors);
     }
 
     public TimeSpan UpdateAuthors(int count)
     {
-        throw new NotImplementedException();
+        var authors = _mockDataService.GenerateMockAuthors(count);
+        return _authorService.Update(authors);
     }
 }

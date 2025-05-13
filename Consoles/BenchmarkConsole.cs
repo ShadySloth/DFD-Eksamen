@@ -1,8 +1,5 @@
-﻿using Database_Benchmarking.Domain;
-using Database_Benchmarking.Domain.Enums;
-using Database_Benchmarking.Domain.Service;
+﻿using Database_Benchmarking.Domain.Enums;
 using Database_Benchmarking.Domain.Service.Services;
-using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Consoles;
 
@@ -108,7 +105,6 @@ public static class BenchmarkConsole
         Console.Write("Your choice: ");
 
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
-        TimeSpan totalTime;
         var count = 0;
         switch (choice)
         {
@@ -131,7 +127,7 @@ public static class BenchmarkConsole
             case "5":
                 count = GetNumberInput();
                 Console.WriteLine("Benchmarking All...");
-                totalTime = BenchmarkCreate(count, service);
+                var totalTime = BenchmarkCreate(count, service);
                 totalTime += BenchmarkFetch(count, service);
                 totalTime += BenchmarkUpdate(count, service);
                 totalTime += BenchmarkDelete(count, service);
