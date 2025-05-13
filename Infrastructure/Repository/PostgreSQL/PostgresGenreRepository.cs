@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Database_Benchmarking.Domain.Entities;
+﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
-namespace Database_Benchmarking.Infrastructure.Repository
+namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL
 {
     public class GenreRepository : IGenreRepository
     {
