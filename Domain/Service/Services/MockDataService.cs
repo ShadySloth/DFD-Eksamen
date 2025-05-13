@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.MockObjectBuilders.Interfaces;
-using Database_Benchmarking.Infrastructure.MockObjectBuilders.Builders; // <- Husk at denne namespace skal matche dine konkrete klasser
+using Database_Benchmarking.Infrastructure.MockObjectBuilders.Builders; 
 
 namespace Database_Benchmarking.Domain.Service.Services
 {
@@ -20,20 +20,18 @@ namespace Database_Benchmarking.Domain.Service.Services
 
         public List<Author> GenerateMockAuthors(int authorCount)
         {
-            string authorPrefix = "Author"; // Mock prefix for author names
+            string authorPrefix = "Author";
             return _authorMockBuilder.BuildAuthors(authorCount, authorPrefix);
         }
 
         public List<Genre> GenerateMockGenres(int genreCount)
         {
-            return _genreMockBuilder.BuildGenres(genreCount); // No extra parameters for genres
+            return _genreMockBuilder.BuildGenres(genreCount);
         }
 
-        public List<Article> GenerateMockArticles(int articleCount)
+        public List<Article> GenerateMockArticles(int articleCount = 10, int authorCount = 5, int genreCount = 3)
         {
-            int authorCount = 5; // Fixed number of authors for mock data
-            int genreCount = 3; // Fixed number of genres for mock data
-            string baseTitle = "Article"; // Mock base title for articles
+            string baseTitle = "Article";
 
             var genres = GenerateMockGenres(genreCount);
             var authors = GenerateMockAuthors(authorCount);
