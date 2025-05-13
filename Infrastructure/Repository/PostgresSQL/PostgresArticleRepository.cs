@@ -12,12 +12,14 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             _context = context;
         }
 
-        public TimeSpan GetAll()
+        public TimeSpan GetAll(ICollection<Article> articles)
         {
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var articles = _context.Articles.ToList();
+            var newArticles = _context.Articles.ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
@@ -57,20 +59,26 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
 
 
-        public TimeSpan Delete(ICollection<EntityId> ids)
+        public TimeSpan Delete(ICollection<Article> articles)
         {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+
+            var ids = articles.Select(a => a.Id).ToList();
 
             var articlesToDelete = _context.Articles
                 .Where(a => ids.Contains(a.Id))
                 .ToList();
 
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             _context.Articles.RemoveRange(articlesToDelete);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette artiklerne
+            return stopwatch.Elapsed;
         }
+
     }
 
