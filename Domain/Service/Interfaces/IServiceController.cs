@@ -6,4 +6,10 @@ public interface IServiceController
     TimeSpan GetAllArticles();
     TimeSpan DeleteArticles(int count);
     TimeSpan UpdateArticles(int count);
+    
+    
+    TimeSpan CreateAuthors(int count);
+    TimeSpan GetAllAuthors();
+    TimeSpan DeleteAuthors(int count);
+    TimeSpan UpdateAuthors(int count);
 }
