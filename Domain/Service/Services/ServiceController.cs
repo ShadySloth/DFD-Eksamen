@@ -10,6 +10,7 @@ public class ServiceController : IServiceController
     private readonly IArticleService _articleService;
     private readonly IAuthorService _authorService;
     private readonly IGenreService _genreService;
+    private readonly MockDataService _mockDataService;
     
     public ServiceController(DatabaseType databaseType)
     {
@@ -32,14 +33,17 @@ public class ServiceController : IServiceController
         _articleService = new ArticleService(repositoryFactory.ArticleRepository(databaseType));
         _authorService = new AuthorService(repositoryFactory.AuthorRepository(databaseType));
         _genreService = new GenreService(repositoryFactory.GenreRepository(databaseType));
+        
+        _mockDataService = new MockDataService();
     }
 
     public TimeSpan CreateArticles(int count)
     {
-        throw new NotImplementedException();
+        var articles = _mockDataService.GenerateMockArticles(count);
+        return _articleService.CreateArticle(articles);
     }
 
-    public TimeSpan GetAllArticles()
+    public TimeSpan GetAllArticles(int count)
     {
         throw new NotImplementedException();
     }

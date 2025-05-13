@@ -9,7 +9,7 @@ public interface IServiceController
     
     
     TimeSpan CreateAuthors(int count);
-    TimeSpan GetAllAuthors();
+    TimeSpan GetAllAuthors(int count);
     TimeSpan DeleteAuthors(int count);
     TimeSpan UpdateAuthors(int count);
 }

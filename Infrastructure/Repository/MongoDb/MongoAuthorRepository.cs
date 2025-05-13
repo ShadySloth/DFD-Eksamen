@@ -25,21 +25,6 @@ public class MongoAuthorRepository : IAuthorRepository
         return elapsedTime;
     }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            var author = _context.Authors.Find(authorDbModel => 
-                    authorDbModel.UserId == new MongoDB.Bson.ObjectId(id.Value))
-                .FirstOrDefault();
-            stopwatch.Stop();
-        }
-        TimeSpan elapsedTime = stopwatch.Elapsed;
-        return elapsedTime;
-    }
-
     public TimeSpan Create(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();

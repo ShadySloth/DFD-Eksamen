@@ -28,20 +28,6 @@ public class MongoArticleRepository : IArticleRepository
         return elapsedTime;
     }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            var article = _context.Articles.Find(articleDbModel => articleDbModel.Id == new ObjectId(id.Value))
-                .FirstOrDefault();
-            stopwatch.Stop();
-        }
-        TimeSpan elapsedTime = stopwatch.Elapsed;
-        return elapsedTime;
-    }
-
     public TimeSpan Create(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
