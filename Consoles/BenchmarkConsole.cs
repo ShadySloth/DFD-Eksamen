@@ -9,18 +9,18 @@ public static class BenchmarkConsole
     {
         var endApp = false;
 
-        Console.WriteLine("Database Benchmarking.\r");
-        Console.WriteLine("----------------------\n");
+        Console.WriteLine("=======================================");
+        Console.WriteLine("         Database Benchmarking         ");
+        Console.WriteLine("=======================================\n");
 
-        Console.WriteLine("Inputting 'q' at any time will quit the app.\n");
+        Console.WriteLine("Input 'q' at any time to quit the app.\n");
 
         while (!endApp)
         {
-            Console.WriteLine("Pick a database to benchmark:");
-            Console.WriteLine("\t1. Relational");
-            Console.WriteLine("\t2. NoSQL");
+            Console.WriteLine("Select a database to benchmark:");
+            Console.WriteLine("  1. Relational");
+            Console.WriteLine("  2. NoSQL");
             Console.WriteLine();
-            Console.Write("Your choice: ");
 
             var choice = GetValidInput(["1", "2"]);
 
@@ -35,8 +35,9 @@ public static class BenchmarkConsole
             }
 
             Console.WriteLine();
-            Console.WriteLine("-------------------\n");
-            Console.WriteLine("Press 'q' to quit the app, or any key to continue...");
+            Console.WriteLine("\n---------------------------------------------");
+            Console.WriteLine("Press 'q' to quit, or any key to continue...");
+            Console.WriteLine("---------------------------------------------\n");
 
             if (Console.ReadKey(true).KeyChar == 'q') endApp = true;
 
@@ -47,12 +48,15 @@ public static class BenchmarkConsole
     private static string GetValidInput(string[] validInputs)
     {
         string input;
+        
+        Console.Write("Your choice: ");
         do
         {
+            
             input = Console.ReadLine()!;
             if (input == "q")
             {
-                Console.WriteLine("Quitting the app.");
+                Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
 
@@ -66,9 +70,7 @@ public static class BenchmarkConsole
 
     private static int GetNumberInput()
     {
-        Console.WriteLine();
-        Console.WriteLine("Enter the number of times to benchmark.");
-        Console.WriteLine();
+        Console.WriteLine("\nEnter the number of records to benchmark.");
         while (true)
         {
             Console.Write("Your choice: ");
@@ -77,7 +79,7 @@ public static class BenchmarkConsole
             
             if (input == "q")
             {
-                Console.WriteLine("Quitting the app.");
+                Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
             
@@ -93,78 +95,96 @@ public static class BenchmarkConsole
     private static void Benchmark(DatabaseType databaseType)
     {
         var service = new ServiceController(databaseType);
-        Console.WriteLine();
-        Console.WriteLine("Pick a benchmarking method:");
-        Console.WriteLine("\t1. Insert");
-        Console.WriteLine("\t2. Query");
-        Console.WriteLine("\t3. Update");
-        Console.WriteLine("\t4. Delete");
-        Console.WriteLine("\t5. All");
-        Console.WriteLine();
 
-        Console.Write("Your choice: ");
+        Console.WriteLine("\nPick a benchmarking method:");
+        Console.WriteLine("  1. Insert");
+        Console.WriteLine("  2. Query");
+        Console.WriteLine("  3. Update");
+        Console.WriteLine("  4. Delete");
+        Console.WriteLine("  5. All");
+        Console.WriteLine();
 
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+
+        Console.WriteLine();
+        
         var count = 0;
         switch (choice)
         {
             case "1":
                 count = GetNumberInput();
-                BenchmarkCreate(count, service);
+                var time = BenchmarkCreate(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "2":
                 count = GetNumberInput();
-                BenchmarkFetch(count, service);
+                time = BenchmarkFetch(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "3":
                 count = GetNumberInput();
-                BenchmarkUpdate(count, service);
+                time = BenchmarkUpdate(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "4":
                 count = GetNumberInput();
-                BenchmarkDelete(count, service);
+                time = BenchmarkDelete(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "5":
                 count = GetNumberInput();
-                Console.WriteLine("Benchmarking All...");
+                Console.WriteLine("\nBenchmarking All...");
                 var totalTime = BenchmarkCreate(count, service);
                 totalTime += BenchmarkFetch(count, service);
                 totalTime += BenchmarkUpdate(count, service);
                 totalTime += BenchmarkDelete(count, service);
-                Console.WriteLine($"Total time taken: {totalTime.TotalMilliseconds}ms");
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(totalTime)} ms.");
                 break;
         }
     }
 
     private static TimeSpan BenchmarkDelete(int count, ServiceController service)
     {
-        Console.WriteLine($"Benchmarking {count} Deletes...");
+        Console.WriteLine($"\nBenchmarking {count} Deletes...");
         var time = service.DeleteArticles(count);
-        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
-        return time;
+        var time2 = service.DeleteAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
     }
 
     private static TimeSpan BenchmarkUpdate(int count, ServiceController service)
     {
-        Console.WriteLine($"Benchmarking {count} Updates...");
+        Console.WriteLine($"\nBenchmarking {count} Updates...");
         var time = service.UpdateArticles(count);
-        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
-        return time;
+        var time2 = service.UpdateArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
     }
 
     private static TimeSpan BenchmarkFetch(int count, ServiceController service)
     {
-        Console.WriteLine($"Benchmarking {count} Fetches...");
+        Console.WriteLine($"\nBenchmarking {count} Fetches...");
         var time = service.GetAllArticles(count);
-        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
-        return time;
+        var time2 = service.GetAllAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
     }
 
     private static TimeSpan BenchmarkCreate(int count, ServiceController service)
     {
-        Console.WriteLine($"Benchmarking {count} Inserts...");
+        Console.WriteLine($"\nBenchmarking {count} Inserts...");
         var time = service.CreateArticles(count);
-        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
-        return time;
+        var time2 = service.CreateAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
+
+    private static int GetRoundedMilliseconds(TimeSpan timeSpan)
+    {
+        return (int)Math.Round(timeSpan.TotalMilliseconds);
     }
 }
