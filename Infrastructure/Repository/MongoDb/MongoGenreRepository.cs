@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Mapper;
@@ -13,35 +14,68 @@ public class MongoGenreRepository : IGenreRepository
     {
         _context = context;
     }
-    public IEnumerable<Genre> GetAll()
+    public TimeSpan GetAll()
     {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
         var genres = _context.Genres.Find(_ => true).ToList();
-        return genres.Select(EntityMapper.ToDomainEntity);
+        stopwatch.Stop();
+        var elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Genre GetById(EntityId id)
+    public TimeSpan GetById(ICollection<EntityId> ids)
     {
-        var genre = _context.Genres.Find(genreDbModel => genreDbModel.Id == new MongoDB.Bson.ObjectId(id.Value))
-            .FirstOrDefault();
-        return EntityMapper.ToDomainEntity(genre);
+        var stopwatch = new Stopwatch();
+        foreach (var id in ids)
+        {
+            stopwatch.Start();
+            var genre = _context.Genres.Find(genreDbModel => genreDbModel.Id == new MongoDB.Bson.ObjectId(id.Value))
+                .FirstOrDefault();
+            stopwatch.Stop();
+        }
+        var elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Genre Create(Genre genre)
+    public TimeSpan Create(ICollection<Genre> genres)
     {
-        var genreDbModel = EntityMapper.ToDbModel(genre);
-        _context.Genres.InsertOne(genreDbModel);
-        return EntityMapper.ToDomainEntity(genreDbModel);
+        var stopwatch = new Stopwatch();
+        foreach (var genre in genres)
+        {
+            var genreDbModel = EntityMapper.ToDbModel(genre);
+            stopwatch.Start();
+            _context.Genres.InsertOne(genreDbModel);
+            stopwatch.Stop();
+        }
+        var elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public Genre Update(Genre genre)
+    public TimeSpan Update(ICollection<Genre> genres)
     {
-        var replacementGenre = EntityMapper.ToDbModel(genre);
-        _context.Genres.ReplaceOne(genreDbModel => genreDbModel.Id == new MongoDB.Bson.ObjectId(genre.Id.Value), replacementGenre);
-        return EntityMapper.ToDomainEntity(replacementGenre);
+        var stopwatch = new Stopwatch();
+        foreach (var genre in genres)
+        {
+            var replacementGenre = EntityMapper.ToDbModel(genre);
+            stopwatch.Start();
+            _context.Genres.ReplaceOne(genreDbModel => genreDbModel.Id == new MongoDB.Bson.ObjectId(genre.Id.Value), replacementGenre);
+            stopwatch.Stop();
+        }
+        var elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 
-    public void Delete(EntityId id)
+    public TimeSpan Delete(ICollection<EntityId> ids)
     {
-        _context.Genres.DeleteOne(genre => genre.Id == new MongoDB.Bson.ObjectId(id.Value));
+        var stopwatch = new Stopwatch();
+        foreach (var id in ids)
+        {
+            stopwatch.Start();
+            _context.Genres.DeleteOne(genre => genre.Id == new MongoDB.Bson.ObjectId(id.Value));
+            stopwatch.Stop();
+        }
+        var elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
     }
 }
