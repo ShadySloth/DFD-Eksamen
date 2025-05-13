@@ -108,43 +108,67 @@ public static class BenchmarkConsole
         Console.Write("Your choice: ");
 
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
-        TimeSpan time;
+        TimeSpan totalTime;
         var count = 0;
         switch (choice)
         {
             case "1":
                 count = GetNumberInput();
-                Console.WriteLine($"Benchmarking {count} Inserts...");
-                time = service.CreateArticles(count);
-                Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+                BenchmarkCreate(count, service);
                 break;
             case "2":
                 count = GetNumberInput();
-                Console.WriteLine($"Benchmarking {count} Fetches...");
-                time = service.GetAllArticles(count);
-                Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+                BenchmarkFetch(count, service);
                 break;
             case "3":
                 count = GetNumberInput();
-                Console.WriteLine($"Benchmarking {count} Updates...");
-                time = service.UpdateArticles(count);
-                Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+                BenchmarkUpdate(count, service);
                 break;
             case "4":
                 count = GetNumberInput();
-                Console.WriteLine($"Benchmarking {count} Deletes...");
-                time = service.DeleteArticles(count);
-                Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+                BenchmarkDelete(count, service);
                 break;
             case "5":
                 count = GetNumberInput();
                 Console.WriteLine("Benchmarking All...");
-                time = service.CreateArticles(count);
-                time += service.GetAllArticles(count);
-                time += service.UpdateArticles(count);
-                time += service.DeleteArticles(count);
-                Console.WriteLine($"Total time taken: {time.TotalMilliseconds}ms");
+                totalTime = BenchmarkCreate(count, service);
+                totalTime += BenchmarkFetch(count, service);
+                totalTime += BenchmarkUpdate(count, service);
+                totalTime += BenchmarkDelete(count, service);
+                Console.WriteLine($"Total time taken: {totalTime.TotalMilliseconds}ms");
                 break;
         }
+    }
+
+    private static TimeSpan BenchmarkDelete(int count, ServiceController service)
+    {
+        Console.WriteLine($"Benchmarking {count} Deletes...");
+        var time = service.DeleteArticles(count);
+        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+        return time;
+    }
+
+    private static TimeSpan BenchmarkUpdate(int count, ServiceController service)
+    {
+        Console.WriteLine($"Benchmarking {count} Updates...");
+        var time = service.UpdateArticles(count);
+        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+        return time;
+    }
+
+    private static TimeSpan BenchmarkFetch(int count, ServiceController service)
+    {
+        Console.WriteLine($"Benchmarking {count} Fetches...");
+        var time = service.GetAllArticles(count);
+        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+        return time;
+    }
+
+    private static TimeSpan BenchmarkCreate(int count, ServiceController service)
+    {
+        Console.WriteLine($"Benchmarking {count} Inserts...");
+        var time = service.CreateArticles(count);
+        Console.WriteLine($"Time taken: {time.TotalMilliseconds}ms");
+        return time;
     }
 }
