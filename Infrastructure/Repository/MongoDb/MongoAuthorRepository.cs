@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
+using Database_Benchmarking.Infrastructure.DatabaseModels;
 using Database_Benchmarking.Infrastructure.Mapper;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 using MongoDB.Driver;
@@ -30,7 +31,8 @@ public class MongoAuthorRepository : IAuthorRepository
         foreach (var id in ids)
         {
             stopwatch.Start();
-            var author = _context.Authors.Find(authorDbModel => authorDbModel.UserId == new MongoDB.Bson.ObjectId(id.Value))
+            var author = _context.Authors.Find(authorDbModel => 
+                    authorDbModel.UserId == new MongoDB.Bson.ObjectId(id.Value))
                 .FirstOrDefault();
             stopwatch.Stop();
         }
@@ -41,13 +43,10 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan Create(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var author in authors)
-        {
-            var authorDbModel = EntityMapper.ToDbModel(author);
-            stopwatch.Start();
-            _context.Authors.InsertOne(authorDbModel);
-            stopwatch.Stop();
-        }
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        stopwatch.Start();
+        _context.Authors.InsertMany(authorDbModel);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
@@ -55,13 +54,16 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan Update(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var author in authors)
-        {
-            var replacementAuthor = EntityMapper.ToDbModel(author);
-            stopwatch.Start();
-            _context.Authors.ReplaceOne(authorDbModel => authorDbModel.UserId == new MongoDB.Bson.ObjectId(author.UserId.Value), replacementAuthor);
-            stopwatch.Stop();
-        }
+        
+        var replacementAuthors = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(replacementAuthors);
+        var filter = Builders<AuthorDbModel>.Filter.In(author => author.UserId, replacementAuthors.Select(article 
+            => article.UserId));
+        var update = Builders<AuthorDbModel>.Update.Set(author => author.Name, $"newName{DateTime.Now}");
+        
+        stopwatch.Start();
+        _context.Authors.UpdateMany(filter, update);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
