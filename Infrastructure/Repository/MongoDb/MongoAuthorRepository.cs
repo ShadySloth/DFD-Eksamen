@@ -32,8 +32,8 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan Create(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
         stopwatch.Start();
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
         _context.Authors.InsertMany(authorDbModel);
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
