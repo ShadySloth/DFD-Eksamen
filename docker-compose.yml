@@ -1,0 +1,15 @@
+﻿version: "3.9"
+
+services:
+  postgresDb:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: myapp  # valgfrit, hvis du vil sikre at init script kører på en specifik db
+    volumes:
+      - ./db/PostgresData:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d  # map init scripts til denne mappe
+    restart: always
