@@ -2,8 +2,8 @@
 
 public interface IServiceController
 {
-    TimeSpan Create(int count);
-    TimeSpan GetAll();
-    TimeSpan Delete(int count);
-    TimeSpan Update(int count);
+    TimeSpan CreateArticles(int count);
+    TimeSpan GetAllArticles();
+    TimeSpan DeleteArticles(int count);
+    TimeSpan UpdateArticles(int count);
 }

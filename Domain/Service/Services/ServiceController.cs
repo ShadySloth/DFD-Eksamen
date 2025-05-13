@@ -34,25 +34,23 @@ public class ServiceController : IServiceController
         _genreService = new GenreService(repositoryFactory.GenreRepository(databaseType));
     }
 
-    public TimeSpan Create(int count)
+    public TimeSpan CreateArticles(int count)
     {
         throw new NotImplementedException();
     }
 
-    public TimeSpan GetAll()
+    public TimeSpan GetAllArticles()
     {
         throw new NotImplementedException();
     }
 
-    public TimeSpan Delete(int count)
+    public TimeSpan DeleteArticles(int count)
     {
         throw new NotImplementedException();
     }
 
-    public TimeSpan Update(int count)
+    public TimeSpan UpdateArticles(int count)
     {
         throw new NotImplementedException();
     }
-
-
 }

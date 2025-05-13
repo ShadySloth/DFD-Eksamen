@@ -113,7 +113,7 @@ public static class BenchmarkConsole
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
                 var count = GetNumberInput();
-                var time = service.Create(count);
+                var time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");
@@ -150,7 +150,7 @@ public static class BenchmarkConsole
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
                 var count = GetNumberInput();
-                var time = service.Create(count);
+                var time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");
