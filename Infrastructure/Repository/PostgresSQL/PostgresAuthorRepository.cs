@@ -1,6 +1,7 @@
 ﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {
@@ -17,11 +18,10 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
         {
             _context.Authors.AddRange(authors);
             _context.SaveChanges();
-            
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var newAuthors = _context.Authors.ToList();
+            var newAuthors = _context.Authors.AsNoTracking().ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere

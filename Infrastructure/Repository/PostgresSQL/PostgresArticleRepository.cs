@@ -1,6 +1,7 @@
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
     public class PostgresArticleRepository : IArticleRepository
@@ -19,7 +20,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var newArticles = _context.Articles.ToList();
+            var newArticles = _context.Articles.AsNoTracking().ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
