@@ -44,7 +44,9 @@ public static class EntityMapper
     {
         return new GenreDbModel
         {
-            Id = new ObjectId(genre.Id.Value),
+            Id = string.IsNullOrWhiteSpace(genre.Id?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(genre.Id.Value),
             Type = genre.Type,
             ArticleIds = genre.Articles.Select(article => new ObjectId(article.Id.Value)).ToList()
         };
@@ -63,7 +65,9 @@ public static class EntityMapper
     {
         return new AuthorDbModel
         {
-            UserId = new ObjectId(author.UserId.Value),
+            UserId = string.IsNullOrWhiteSpace(author.UserId?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(author.UserId.Value),
             Name = author.Name,
         };
     }
