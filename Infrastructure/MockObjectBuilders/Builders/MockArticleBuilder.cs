@@ -25,7 +25,7 @@ namespace Database_Benchmarking.Infrastructure.MockObjectBuilders.Builders
                     AuthorId = authorList[i % authorList.Count].UserId, // Tildel en forfatter fra listen
                     Author = authorList[i % authorList.Count], // Tildel Author objektet
                     Genres = new List<Genre> { genreList[i % genreList.Count] }, // Tildel en genre fra listen
-                    Updated = DateTime.Now, // Sæt opdateringsdato til nu
+                    Updated = DateTime.Now.ToUniversalTime(), // Sæt opdateringsdato til nu
                     Deleted = null // Ingen slettede datoer
                 };
 
