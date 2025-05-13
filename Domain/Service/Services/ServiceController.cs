@@ -53,4 +53,24 @@ public class ServiceController : IServiceController
     {
         throw new NotImplementedException();
     }
+
+    public TimeSpan CreateAuthors(int count)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TimeSpan GetAllAuthors()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TimeSpan DeleteAuthors(int count)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TimeSpan UpdateAuthors(int count)
+    {
+        throw new NotImplementedException();
+    }
 }
