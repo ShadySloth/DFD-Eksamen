@@ -64,7 +64,7 @@ public class ServiceController : IServiceController
         throw new NotImplementedException();
     }
 
-    public TimeSpan GetAllAuthors()
+    public TimeSpan GetAllAuthors(int count)
     {
         throw new NotImplementedException();
     }

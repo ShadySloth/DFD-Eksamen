@@ -15,11 +15,11 @@ public class MongoAuthorRepository : IAuthorRepository
     {
         _context = context;
     }
-    public TimeSpan GetAll()
+    public TimeSpan GetAll(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        var authors = _context.Authors.Find(_ => true).ToList();
+        var authors2 = _context.Authors.Find(_ => true).ToList();
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
@@ -53,15 +53,10 @@ public class MongoAuthorRepository : IAuthorRepository
         return elapsedTime;
     }
 
-    public TimeSpan Delete(ICollection<EntityId> ids)
+    public TimeSpan Delete(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            _context.Authors.DeleteOne(author => author.UserId == new MongoDB.Bson.ObjectId(id.Value));
-            stopwatch.Stop();
-        }
+        // TODO : Implement delete
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }

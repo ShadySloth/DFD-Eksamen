@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Database_Benchmarking.Migrations
 {
     /// <inheritdoc />
@@ -79,6 +81,18 @@ namespace Database_Benchmarking.Migrations
                         principalTable: "Genres",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Genres",
+                columns: new[] { "Id", "Type" },
+                values: new object[,]
+                {
+                    { "11111111-1111-1111-1111-111111111111", "Action" },
+                    { "22222222-2222-2222-2222-222222222222", "Comedy" },
+                    { "33333333-3333-3333-3333-333333333333", "Drama" },
+                    { "44444444-4444-4444-4444-444444444444", "Horror" },
+                    { "55555555-5555-5555-5555-555555555555", "Fantasy" }
                 });
 
             migrationBuilder.CreateIndex(

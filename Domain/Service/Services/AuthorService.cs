@@ -15,8 +15,9 @@ public class AuthorService : IAuthorService
 
     public TimeSpan GetAll()
     {
-        var timeSpan = _authorRepository.GetAll();
-        return timeSpan;
+        throw new NotImplementedException();
+        //var timeSpan = _authorRepository.GetAll();
+        //return timeSpan;
     }
 
     public TimeSpan Create(ICollection<Author> authors)
@@ -33,7 +34,8 @@ public class AuthorService : IAuthorService
 
     public TimeSpan Delete(ICollection<EntityId> ids)
     { 
-        var timeSpan = _authorRepository.Delete(ids);
-        return timeSpan;
+        throw new NotImplementedException();
+        //var timeSpan = _authorRepository.Delete(ids);
+        //return timeSpan;
     }
 }

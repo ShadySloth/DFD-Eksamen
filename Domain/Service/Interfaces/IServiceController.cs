@@ -3,7 +3,7 @@
 public interface IServiceController
 {
     TimeSpan CreateArticles(int count);
-    TimeSpan GetAllArticles();
+    TimeSpan GetAllArticles(int count);
     TimeSpan DeleteArticles(int count);
     TimeSpan UpdateArticles(int count);
     

@@ -18,11 +18,11 @@ public class MongoArticleRepository : IArticleRepository
         _context = context;
     }
 
-    public TimeSpan GetAll()
+    public TimeSpan GetAll(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        var articles = _context.Articles.Find(_ => true).ToList();
+        var articles2 = _context.Articles.Find(_ => true).ToList();
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
@@ -55,15 +55,10 @@ public class MongoArticleRepository : IArticleRepository
         return elapsedTime;
     }
 
-    public TimeSpan Delete(ICollection<EntityId> ids)
+    public TimeSpan Delete(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            _context.Articles.DeleteOne(article => article.Id == new ObjectId(id.Value));
-            stopwatch.Stop();
-        }
+        // TODO make this one
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
