@@ -55,8 +55,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
-
+        
         public TimeSpan Delete(ICollection<EntityId> ids)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
