@@ -13,12 +13,15 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context = context;
         }
 
-        public TimeSpan GetAll()
+        public TimeSpan GetAll(ICollection<Author> authors)
         {
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
+            
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var authors = _context.Authors.ToList();
+            var newAuthors = _context.Authors.ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere
@@ -56,8 +59,13 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             return stopwatch.Elapsed;
         }
         
-        public TimeSpan Delete(ICollection<EntityId> ids)
+        public TimeSpan Delete(ICollection<Author> authors)
         {
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
+
+            var ids = authors.Select(a => a.UserId).ToList();
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -69,7 +77,8 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette forfatterne
+            return stopwatch.Elapsed;
         }
+
     }
 }
