@@ -1,4 +1,5 @@
-﻿using Database_Benchmarking.Infrastructure.Context;
+﻿using Database_Benchmarking.Domain.Enums;
+using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 using Database_Benchmarking.Infrastructure.Repository.MongoDb;
 using Database_Benchmarking.Infrastructure.Repository.PostgresSQL;

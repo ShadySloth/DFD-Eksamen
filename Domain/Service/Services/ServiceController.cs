@@ -1,9 +1,9 @@
-﻿using Database_Benchmarking.Domain.Service.Interfaces;
-using Database_Benchmarking.Domain.Service.Services;
+﻿using Database_Benchmarking.Domain.Enums;
+using Database_Benchmarking.Domain.Service.Interfaces;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Factories;
 
-namespace Database_Benchmarking.Domain.Service;
+namespace Database_Benchmarking.Domain.Service.Services;
 
 public class ServiceController : IServiceController
 {

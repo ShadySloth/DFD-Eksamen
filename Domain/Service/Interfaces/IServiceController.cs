@@ -1,4 +1,4 @@
-﻿namespace Database_Benchmarking.Domain.Service;
+﻿namespace Database_Benchmarking.Domain.Service.Interfaces;
 
 public interface IServiceController
 {
