@@ -15,8 +15,7 @@ namespace Database_Benchmarking.Domain.Service.Services
 
         public TimeSpan GetAllArticles(ICollection<Article> articles)
         {
-            throw new NotImplementedException();
-            //return _repository.GetAll();
+            return _repository.GetAll(articles);
         }
 
         public TimeSpan CreateArticle(ICollection<Article> articles)
@@ -31,8 +30,7 @@ namespace Database_Benchmarking.Domain.Service.Services
 
         public TimeSpan DeleteArticle(ICollection<Article> articles)
         {
-            throw new NotImplementedException();
-            //return _repository.Delete(ids);
+            return _repository.Delete(articles);
         }
     }
 }
