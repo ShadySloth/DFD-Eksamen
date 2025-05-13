@@ -34,8 +34,8 @@ public class MongoArticleRepository : IArticleRepository
     public TimeSpan Create(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
-        var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
         stopwatch.Start();
+        var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articleDbModel);
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
