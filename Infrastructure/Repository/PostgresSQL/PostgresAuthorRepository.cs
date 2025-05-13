@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Database_Benchmarking.Domain.Entities;
+﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
-namespace Database_Benchmarking.Infrastructure.Repository
+namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {
-    public class AuthorRepository : IAuthorRepository
+    public class PostgresAuthorRepository : IAuthorRepository
     {
-        private readonly PostgresContext _context;
+        private readonly PostgresDbContext _context;
 
-        public AuthorRepository(PostgresContext context)
+        public PostgresAuthorRepository(PostgresDbContext context)
         {
             _context = context;
         }
