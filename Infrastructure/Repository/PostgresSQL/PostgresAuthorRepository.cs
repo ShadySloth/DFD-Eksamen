@@ -24,20 +24,6 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere
         }
 
-        public TimeSpan GetById(ICollection<EntityId> ids)
-        {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
-            // Henter forfattere baseret på id'erne
-            var authors = _context.Authors
-                .Where(a => ids.Contains(a.UserId))
-                .ToList();
-
-            stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente forfattere med de angivne id'er
-        }
-
         public TimeSpan Create(ICollection<Author> authors)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -69,8 +55,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
-
+        
         public TimeSpan Delete(ICollection<EntityId> ids)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();

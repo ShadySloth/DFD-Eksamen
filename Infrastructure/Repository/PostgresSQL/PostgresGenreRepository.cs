@@ -23,20 +23,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
-        public TimeSpan GetById(ICollection<EntityId> ids)
-        {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
-            var genres = _context.Genres
-                .Where(g => ids.Contains(g.Id))
-                .ToList();
-
-            stopwatch.Stop();
-            return stopwatch.Elapsed;
-        }
-
+        
         public TimeSpan Create(ICollection<Genre> genres)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
