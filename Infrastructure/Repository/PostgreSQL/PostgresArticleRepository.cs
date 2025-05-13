@@ -1,40 +1,59 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
-namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
-
-public class PostgresArticleRepository : IArticleRepository
+namespace Database_Benchmarking.Infrastructure.Repository
 {
-    private readonly PostgresDbContext _context;
-    public PostgresArticleRepository(PostgresDbContext context)
+    public class ArticleRepository : IArticleRepository
     {
-        _context = context;
-    }
+        private readonly PostgresContext _context;
 
-    public TimeSpan GetAll()
-    {
-        throw new NotImplementedException();
-    }
+        public ArticleRepository(PostgresContext context)
+        {
+            _context = context;
+        }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        throw new NotImplementedException();
-    }
+        public TimeSpan GetAll()
+        {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
 
-    public TimeSpan Create(ICollection<Article> articles)
-    {
-        throw new NotImplementedException();
-    }
+            var articles = _context.Articles.ToList();
 
-    public TimeSpan Update(ICollection<Article> articles)
-    {
-        throw new NotImplementedException();
-    }
+            stopwatch.Stop();
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
+        }
 
-    public TimeSpan Delete(ICollection<EntityId> ids)
-    {
-        throw new NotImplementedException();
-    }
+        public TimeSpan GetById(ICollection<EntityId> ids)
+        {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            var articles = _context.Articles
+                .Where(a => ids.Contains(a.Id))
+                .ToList();
+
+            stopwatch.Stop();
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente artiklerne med de angivne id'er
+        }
+
+        public TimeSpan Create(ICollection<Article> articles)
+        {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+
+            stopwatch.Stop();
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at oprette artiklerne
+        }
+
+public class PostgresArticleRepository
+{
+    
 }
