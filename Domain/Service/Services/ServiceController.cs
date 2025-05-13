@@ -42,6 +42,7 @@ public class ServiceController : IServiceController
         var articles = _mockDataService.GenerateMockArticles(count);
         return _articleService.CreateArticle(articles);
     }
+    
 
     public TimeSpan GetAllArticles(int count)
     {
