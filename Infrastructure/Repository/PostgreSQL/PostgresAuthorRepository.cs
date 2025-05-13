@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +8,11 @@ using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Infrastructure.Repository
 {
-    public class ArticleRepository : IArticleRepository
+    public class AuthorRepository : IAuthorRepository
     {
         private readonly PostgresContext _context;
 
-        public ArticleRepository(PostgresContext context)
+        public AuthorRepository(PostgresContext context)
         {
             _context = context;
         }
@@ -22,10 +22,10 @@ namespace Database_Benchmarking.Infrastructure.Repository
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var articles = _context.Articles.ToList();
+            var authors = _context.Authors.ToList();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere
         }
 
         public TimeSpan GetById(ICollection<EntityId> ids)
@@ -33,36 +33,37 @@ namespace Database_Benchmarking.Infrastructure.Repository
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var articles = _context.Articles
-                .Where(a => ids.Contains(a.Id))
+            // Henter forfattere baseret på id'erne
+            var authors = _context.Authors
+                .Where(a => ids.Contains(a.UserId))
                 .ToList();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente artiklerne med de angivne id'er
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente forfattere med de angivne id'er
         }
 
-        public TimeSpan Create(ICollection<Article> articles)
+        public TimeSpan Create(ICollection<Author> authors)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            _context.Articles.AddRange(articles);
+            _context.Authors.AddRange(authors);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at oprette artiklerne
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at oprette forfatterne
         }
 
-        public TimeSpan Update(ICollection<Article> articles)
+        public TimeSpan Update(ICollection<Author> authors)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            _context.Articles.UpdateRange(articles);
+            _context.Authors.UpdateRange(authors);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at opdatere artiklerne
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at opdatere forfatterne
         }
 
         public TimeSpan Delete(ICollection<EntityId> ids)
@@ -70,15 +71,15 @@ namespace Database_Benchmarking.Infrastructure.Repository
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var articlesToDelete = _context.Articles
-                .Where(a => ids.Contains(a.Id))
+            var authorsToDelete = _context.Authors
+                .Where(a => ids.Contains(a.UserId))
                 .ToList();
 
-            _context.Articles.RemoveRange(articlesToDelete);
+            _context.Authors.RemoveRange(authorsToDelete);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette artiklerne
+            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette forfatterne
         }
     }
 }
