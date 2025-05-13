@@ -56,6 +56,14 @@ namespace Database_Benchmarking.Infrastructure.Repository
 
         public TimeSpan Update(ICollection<Author> authors)
         {
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
+
+            foreach (var author in authors)
+            {
+                author.Name += " - updated";
+            }
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -63,8 +71,9 @@ namespace Database_Benchmarking.Infrastructure.Repository
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at opdatere forfatterne
+            return stopwatch.Elapsed;
         }
+
 
         public TimeSpan Delete(ICollection<EntityId> ids)
         {
