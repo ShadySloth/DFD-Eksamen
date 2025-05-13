@@ -8,10 +8,5 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
     volumes:
       - ./db/PostgresData:/var/lib/postgresql/data
-    restart: always
-    
-    
-    
