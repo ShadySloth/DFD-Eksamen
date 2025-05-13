@@ -108,24 +108,36 @@ public static class BenchmarkConsole
         Console.Write("Your choice: ");
 
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+        TimeSpan time;
+        var count = 0;
         switch (choice)
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
-                var count = GetNumberInput();
-                var time = service.CreateArticles(count);
+                count = GetNumberInput();
+                time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");
+                time = service.GetAllArticles();
                 break;
             case "3":
                 Console.WriteLine("Benchmarking Update...");
+                count = GetNumberInput();
+                time = service.UpdateArticles(count);
                 break;
             case "4":
                 Console.WriteLine("Benchmarking Delete...");
+                count = GetNumberInput();
+                time = service.DeleteArticles(count);
                 break;
             case "5":
                 Console.WriteLine("Benchmarking All...");
+                count = GetNumberInput();
+                time = service.CreateArticles(count);
+                time += service.GetAllArticles();
+                time += service.UpdateArticles(count);
+                time += service.DeleteArticles(count);
                 break;
         }
     }
@@ -145,24 +157,36 @@ public static class BenchmarkConsole
         Console.Write("Your choice: ");
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
 
+        TimeSpan time;
+        var count = 0;
         switch (choice)
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
-                var count = GetNumberInput();
-                var time = service.CreateArticles(count);
+                count = GetNumberInput();
+                time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");
+                time = service.GetAllArticles();
                 break;
             case "3":
                 Console.WriteLine("Benchmarking Update...");
+                count = GetNumberInput();
+                time = service.UpdateArticles(count);
                 break;
             case "4":
                 Console.WriteLine("Benchmarking Delete...");
+                count = GetNumberInput();
+                time = service.DeleteArticles(count);
                 break;
             case "5":
                 Console.WriteLine("Benchmarking All...");
+                count = GetNumberInput();
+                time = service.CreateArticles(count);
+                time += service.GetAllArticles();
+                time += service.UpdateArticles(count);
+                time += service.DeleteArticles(count);
                 break;
         }
     }

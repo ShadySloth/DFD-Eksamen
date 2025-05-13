@@ -19,12 +19,6 @@ public class AuthorService : IAuthorService
         return timeSpan;
     }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        var timeSpan = _authorRepository.GetById(ids);
-        return timeSpan;
-    }
-
     public TimeSpan Create(ICollection<Author> authors)
     {
         var timeSpan = _authorRepository.Create(authors);

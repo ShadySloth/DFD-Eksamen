@@ -19,12 +19,6 @@ public class GenreService : IGenreService
         return timeSpan;
     }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        TimeSpan timeSpan = _repository.GetById(ids);
-        return timeSpan;
-    }
-
     public TimeSpan Create(ICollection<Genre> genres)
     {
         TimeSpan timeSpan = _repository.Create(genres);
