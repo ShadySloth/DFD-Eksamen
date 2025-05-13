@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Database_Benchmarking.Migrations
 {
-    [DbContext(typeof(PostgresContext))]
+    [DbContext(typeof(PostgresDbContext))]
     [Migration("20250513063205_InitialCreate")]
     partial class InitialCreate
     {

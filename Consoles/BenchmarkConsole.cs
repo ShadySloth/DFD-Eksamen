@@ -1,4 +1,10 @@
-﻿namespace Database_Benchmarking.Consoles;
+﻿using Database_Benchmarking.Domain;
+using Database_Benchmarking.Domain.Enums;
+using Database_Benchmarking.Domain.Service;
+using Database_Benchmarking.Domain.Service.Services;
+using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+
+namespace Database_Benchmarking.Consoles;
 
 public static class BenchmarkConsole
 {
@@ -19,7 +25,7 @@ public static class BenchmarkConsole
             Console.WriteLine();
             Console.Write("Your choice: ");
 
-            var choice = GetValidInput(["1", "2", "q"]);
+            var choice = GetValidInput(["1", "2"]);
 
             switch (choice)
             {
@@ -89,6 +95,7 @@ public static class BenchmarkConsole
 
     private static void BenchmarkRelational()
     {
+        var service = new ServiceController(DatabaseType.Relational);
         Console.WriteLine();
         Console.WriteLine("Pick a benchmarking method:");
         Console.WriteLine("\t1. Insert");
@@ -105,7 +112,8 @@ public static class BenchmarkConsole
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
-                Console.WriteLine(GetNumberInput());
+                var count = GetNumberInput();
+                var time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");
@@ -124,6 +132,7 @@ public static class BenchmarkConsole
 
     private static void BenchmarkNoSql()
     {
+        var service = new ServiceController(DatabaseType.NoSql);
         Console.WriteLine();
         Console.WriteLine("Pick a benchmarking method:");
         Console.WriteLine("\t1. Insert");
@@ -140,6 +149,8 @@ public static class BenchmarkConsole
         {
             case "1":
                 Console.WriteLine("Benchmarking Insert...");
+                var count = GetNumberInput();
+                var time = service.CreateArticles(count);
                 break;
             case "2":
                 Console.WriteLine("Benchmarking Query...");

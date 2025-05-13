@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Context;
 
-public class PostgresContext : DbContext
+public class PostgresDbContext : DbContext
 {
-    public PostgresContext(DbContextOptions<PostgresContext> options) : base(options) { }
+    public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options) { }
 
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Author> Authors { get; set; }
