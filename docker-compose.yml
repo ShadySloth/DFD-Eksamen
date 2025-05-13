@@ -8,15 +8,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
     volumes:
       - ./db/PostgresData:/var/lib/postgresql/data
-      - ./db/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     restart: always
-    networks:
-      - postgres_network  # Tilføj til brugerdefineret netværk
-
-networks:
-  postgres_network:  # Definer netværket
-    driver: bridge
-
