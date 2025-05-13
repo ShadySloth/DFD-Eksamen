@@ -1,40 +1,41 @@
 using Database_Benchmarking.Domain.Entities;
-using Database_Benchmarking.Domain.Service.Interfaces;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using Database_Benchmarking.Domain.Service.Interfaces;
 
-namespace Database_Benchmarking.Domain.Service.Services;
-
-public class ArticleService : IArticleService
+namespace Database_Benchmarking.Domain.Service.Services
 {
-    private readonly IArticleRepository _repository;
-
-    public ArticleService(IArticleRepository repository)
+    public class ArticleService : IArticleService
     {
-        _repository = repository;
-    }
+        private readonly IArticleRepository _repository;
 
-    public TimeSpan GetAllArticles()
-    {
-        throw new NotImplementedException();
-    }
+        public ArticleService(IArticleRepository repository)
+        {
+            _repository = repository;
+        }
 
-    public TimeSpan GetArticleById(ICollection<EntityId> ids)
-    {
-        throw new NotImplementedException();
-    }
+        public TimeSpan GetAllArticles()
+        {
+            return _repository.GetAll();
+        }
 
-    public TimeSpan CreateArticle(ICollection<Article> articles)
-    {
-        throw new NotImplementedException();
-    }
+        public TimeSpan GetArticleById(ICollection<EntityId> ids)
+        {
+            return _repository.GetById(ids);
+        }
 
-    public TimeSpan UpdateArticle(ICollection<Article> articles)
-    {
-        throw new NotImplementedException();
-    }
+        public TimeSpan CreateArticle(ICollection<Article> articles)
+        {
+            return _repository.Create(articles);
+        }
 
-    public TimeSpan DeleteArticle(ICollection<EntityId> ids)
-    {
-        throw new NotImplementedException();
+        public TimeSpan UpdateArticle(ICollection<Article> articles)
+        {
+            return _repository.Update(articles);
+        }
+
+        public TimeSpan DeleteArticle(ICollection<EntityId> ids)
+        {
+            return _repository.Delete(ids);
+        }
     }
 }
