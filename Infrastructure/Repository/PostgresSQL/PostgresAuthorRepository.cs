@@ -65,13 +65,15 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context.SaveChanges();
 
             var ids = authors.Select(a => a.UserId).ToList();
+            
+            
+            var authorsToDelete = _context.Authors
+                .Where(a => ids.Contains(a.UserId))
+                .ToList();
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var authorsToDelete = _context.Authors
-                .Where(a => ids.Contains(a.UserId))
-                .ToList();
 
             _context.Authors.RemoveRange(authorsToDelete);
             _context.SaveChanges();
