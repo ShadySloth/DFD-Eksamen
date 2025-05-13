@@ -10,13 +10,20 @@ public static class EntityMapper
     {
         return new ArticleDbModel
         {
-            Id = new ObjectId(article.Id.Value),
+            Id = string.IsNullOrWhiteSpace(article.Id?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(article.Id.Value),
             Title = article.Title,
-            AuthorId = new ObjectId(article.AuthorId.Value),
+            AuthorId = string.IsNullOrWhiteSpace(article.AuthorId?.Value)
+                ? ObjectId.Empty
+                : new ObjectId(article.AuthorId.Value),
             BodyText = article.BodyText,
             Updated = article.Updated,
             Deleted = article.Deleted,
-            GenreIds = article.Genres.Select(genre => new ObjectId(genre.Id.Value)).ToList()
+            GenreIds = article.Genres?
+                .Where(g => !string.IsNullOrWhiteSpace(g?.Id?.Value))
+                .Select(g => new ObjectId(g.Id.Value))
+                .ToList() ?? new List<ObjectId>(),
         };
     }
     
