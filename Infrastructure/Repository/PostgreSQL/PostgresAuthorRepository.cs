@@ -11,28 +11,28 @@ public class PostgresAuthorRepository : IAuthorRepository
     {
         _context = context;
     }
-    
-    public IEnumerable<Author> GetAll()
+
+    public TimeSpan GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public Author GetById(EntityId id)
+    public TimeSpan GetById(ICollection<EntityId> ids)
     {
         throw new NotImplementedException();
     }
 
-    public Author Create(Author author)
+    public TimeSpan Create(ICollection<Author> authors)
     {
         throw new NotImplementedException();
     }
 
-    public Author Update(Author author)
+    public TimeSpan Update(ICollection<Author> authors)
     {
         throw new NotImplementedException();
     }
 
-    public void Delete(EntityId id)
+    public TimeSpan Delete(ICollection<EntityId> ids)
     {
         throw new NotImplementedException();
     }

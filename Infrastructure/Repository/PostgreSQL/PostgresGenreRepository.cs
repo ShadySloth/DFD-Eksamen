@@ -11,28 +11,28 @@ public class PostgresGenreRepository : IGenreRepository
     {
         _context = context;
     }
-    
-    public IEnumerable<Genre> GetAll()
+
+    public TimeSpan GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public Genre GetById(EntityId id)
+    public TimeSpan GetById(ICollection<EntityId> id)
     {
         throw new NotImplementedException();
     }
 
-    public Genre Create(Genre genre)
+    public TimeSpan Create(ICollection<Genre> genre)
     {
         throw new NotImplementedException();
     }
 
-    public Genre Update(Genre genre)
+    public TimeSpan Update(ICollection<Genre> genre)
     {
         throw new NotImplementedException();
     }
 
-    public void Delete(EntityId id)
+    public TimeSpan Delete(ICollection<EntityId> id)
     {
         throw new NotImplementedException();
     }

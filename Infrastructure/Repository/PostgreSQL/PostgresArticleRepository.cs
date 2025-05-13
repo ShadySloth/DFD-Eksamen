@@ -13,27 +13,27 @@ public class PostgresArticleRepository : IArticleRepository
         _context = context;
     }
 
-    public IEnumerable<Article> GetAll()
+    public TimeSpan GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public Article GetById(EntityId id)
+    public TimeSpan GetById(ICollection<EntityId> ids)
     {
         throw new NotImplementedException();
     }
 
-    public Article Create(Article article)
+    public TimeSpan Create(ICollection<Article> articles)
     {
         throw new NotImplementedException();
     }
 
-    public Article Update(Article article)
+    public TimeSpan Update(ICollection<Article> articles)
     {
         throw new NotImplementedException();
     }
 
-    public void Delete(EntityId id)
+    public TimeSpan Delete(ICollection<EntityId> ids)
     {
         throw new NotImplementedException();
     }
