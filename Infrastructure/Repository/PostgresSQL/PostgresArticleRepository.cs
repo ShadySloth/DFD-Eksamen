@@ -50,6 +50,14 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Update(ICollection<Article> articles)
         {
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+
+            foreach (var article in articles)
+            {
+                article.Updated = DateTime.UtcNow;
+            }
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -57,8 +65,10 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at opdatere artiklerne
+            return stopwatch.Elapsed;
         }
+
+
 
         public TimeSpan Delete(ICollection<EntityId> ids)
         {

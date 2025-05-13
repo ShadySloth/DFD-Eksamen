@@ -21,7 +21,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             var genres = _context.Genres.ToList();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle genrer
+            return stopwatch.Elapsed;
         }
 
         public TimeSpan GetById(ICollection<EntityId> ids)
@@ -29,13 +29,12 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            // Antager at EntityId er en int og vi kan konvertere det til en liste af id'er
             var genres = _context.Genres
                 .Where(g => ids.Contains(g.Id))
                 .ToList();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente genrer med de angivne id'er
+            return stopwatch.Elapsed;
         }
 
         public TimeSpan Create(ICollection<Genre> genres)
@@ -47,7 +46,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at oprette genrerne
+            return stopwatch.Elapsed;
         }
 
         public TimeSpan Update(ICollection<Genre> genres)
@@ -59,7 +58,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at opdatere genrerne
+            return stopwatch.Elapsed;
         }
 
         public TimeSpan Delete(ICollection<EntityId> ids)
@@ -75,7 +74,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette genrerne
+            return stopwatch.Elapsed;
         }
     }
 }
