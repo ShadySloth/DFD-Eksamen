@@ -2,12 +2,12 @@ using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
-namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
-    public class ArticleRepository : IArticleRepository
+namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
+    public class PostgresArticleRepository : IArticleRepository
     {
-        private readonly PostgresContext _context;
+        private readonly PostgresDbContext _context;
 
-        public ArticleRepository(PostgresContext context)
+        public PostgresArticleRepository(PostgresDbContext context)
         {
             _context = context;
         }

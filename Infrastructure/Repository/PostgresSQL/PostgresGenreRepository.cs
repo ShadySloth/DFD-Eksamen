@@ -2,13 +2,13 @@
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
-namespace Database_Benchmarking.Infrastructure.Repository.PostgreSQL
+namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {
-    public class GenreRepository : IGenreRepository
+    public class PostgresGenreRepository : IGenreRepository
     {
-        private readonly PostgresContext _context;
+        private readonly PostgresDbContext _context;
 
-        public GenreRepository(PostgresContext context)
+        public PostgresGenreRepository(PostgresDbContext context)
         {
             _context = context;
         }

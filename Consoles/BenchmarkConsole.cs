@@ -1,7 +1,6 @@
 ﻿using Database_Benchmarking.Domain;
 using Database_Benchmarking.Domain.Service;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
-using Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
 
 namespace Database_Benchmarking.Consoles;
 

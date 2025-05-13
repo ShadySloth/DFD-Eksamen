@@ -1,7 +1,7 @@
 ﻿using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 using Database_Benchmarking.Infrastructure.Repository.MongoDb;
-using Database_Benchmarking.Infrastructure.Repository.PostgreSQL;
+using Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
 namespace Database_Benchmarking.Domain;
 
