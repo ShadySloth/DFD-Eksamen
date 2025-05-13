@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
+using Database_Benchmarking.Infrastructure.DatabaseModels;
 using Database_Benchmarking.Infrastructure.Mapper;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 using MongoDB.Bson;
@@ -44,13 +45,10 @@ public class MongoArticleRepository : IArticleRepository
     public TimeSpan Create(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var article in articles)
-        {
-            var articleDbModel = EntityMapper.ToDbModel(article);
-            stopwatch.Start();
-            _context.Articles.InsertOne(articleDbModel);
-            stopwatch.Stop();
-        }
+        var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
+        stopwatch.Start();
+        _context.Articles.InsertMany(articleDbModel);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
@@ -58,13 +56,15 @@ public class MongoArticleRepository : IArticleRepository
     public TimeSpan Update(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var article in articles)
-        {
-            var replacementArticle = EntityMapper.ToDbModel(article);
-            stopwatch.Start();
-            _context.Articles.ReplaceOne(articleDbModel => articleDbModel.Id == new ObjectId(article.Id.Value), replacementArticle);
-            stopwatch.Stop();
-        }
+        
+        var replacementArticles = articles.Select(EntityMapper.ToDbModel).ToList();
+        _context.Articles.InsertMany(replacementArticles);
+        var filter = Builders<ArticleDbModel>.Filter.In(article => article.Id, replacementArticles.Select(article => article.Id));
+        var update = Builders<ArticleDbModel>.Update.Set(article => article.Updated, DateTime.Now);
+        
+        stopwatch.Start();
+        _context.Articles.UpdateMany(filter, update);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
