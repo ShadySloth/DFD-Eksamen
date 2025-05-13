@@ -18,8 +18,12 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan GetAll(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
+        
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(authorDbModel);
+        
         stopwatch.Start();
-        var authors2 = _context.Authors.Find(_ => true).ToList();
+        var foundAuthors = _context.Authors.Find(_ => true).ToList();
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
@@ -56,7 +60,15 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan Delete(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        // TODO : Implement delete
+        
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(authorDbModel);
+        var filter = Builders<AuthorDbModel>.Filter.In(author => author.UserId, authorDbModel.Select(article 
+            => article.UserId));
+        
+        stopwatch.Start();
+        _context.Authors.DeleteMany(filter);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
