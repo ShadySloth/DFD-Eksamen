@@ -16,18 +16,19 @@ public class SQLAuthorRepository : IAuthorRepository
     }
     public TimeSpan GetAll(ICollection<Author> authors)
     {
+        CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
-        
+
         var query = $"SELECT * FROM \"Authors\" LIMIT {authors.Count}";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
-        
+
         using var command = new Npgsql.NpgsqlCommand(query, connection);
         var fetchedAuthors = new List<Author>();
         var stopwatch = Stopwatch.StartNew();
-        
+
         using (var reader = command.ExecuteReader())
         {
             while (reader.Read())
@@ -35,28 +36,29 @@ public class SQLAuthorRepository : IAuthorRepository
                 var author = new Author
                 {
                     UserId = new EntityId(reader.GetInt32(0).ToString()),
-                    Name = reader.GetString(1),
+                    AuthorName = reader.GetString(1),
                 };
                 fetchedAuthors.Add(author);
             }
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
     {
+        CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
-        
+
         var query =
             "SELECT * FROM (" +
                 "SELECT *, row_number() OVER (ORDER BY \"UserId\") AS rNum " +
                 "FROM \"Authors\"" +
             ") AS subquery WHERE rNum = @indexToGet";
-        
+
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -69,19 +71,20 @@ public class SQLAuthorRepository : IAuthorRepository
                 var author = new Author
                 {
                     UserId = new EntityId(reader.GetInt32(0).ToString()),
-                    Name = reader.GetString(1),
+                    AuthorName = reader.GetString(1),
                 };
             }
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Author> authors)
     {
-        var query = "INSERT INTO \"Authors\" (Name) VALUES (@Name)";
+        CleanUp();
+        var query = "INSERT INTO \"Authors\" (\"AuthorName\") VALUES (@Name)";
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -89,21 +92,22 @@ public class SQLAuthorRepository : IAuthorRepository
         foreach (var author in authors)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Name", author.Name);
+            command.Parameters.AddWithValue("@Name", author.AuthorName);
             command.ExecuteNonQuery();
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Update(ICollection<Author> authors)
     {
+        CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
-        
-        var query = "UPDATE \"Authors\" SET \"Name\" = @Name WHERE \"UserId\" = @UserId";
+
+        var query = "UPDATE \"Authors\" SET \"AuthorName\" = @Name WHERE \"UserId\" = @UserId";
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -112,16 +116,18 @@ public class SQLAuthorRepository : IAuthorRepository
         {
             command.Parameters.Clear();
             command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
-            command.Parameters.AddWithValue("@Name", author.Name);
+            command.Parameters.AddWithValue("@Name", author.AuthorName);
+
             command.ExecuteNonQuery();
         }
+
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Delete(ICollection<Author> authors)
     {
+        CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
         
@@ -138,7 +144,7 @@ public class SQLAuthorRepository : IAuthorRepository
         }
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
+        
         return stopwatch.Elapsed;
     }
 

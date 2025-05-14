@@ -64,7 +64,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 
             foreach (var author in authors)
             {
-                author.Name += " - updated";
+                author.AuthorName += " - updated";
             }
 
             var stopwatch = new System.Diagnostics.Stopwatch();

@@ -16,14 +16,15 @@ public class SQLArticleRepository : IArticleRepository
     
     public TimeSpan GetAll(ICollection<Article> articles)
     {
+        CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
-        
+
         var query = $"SELECT * FROM \"Articles\" LIMIT {articles.Count}";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
-        
+
         using var command = new Npgsql.NpgsqlCommand(query, connection);
         var stopwatch = Stopwatch.StartNew();
         using (var reader = command.ExecuteReader())
@@ -43,14 +44,15 @@ public class SQLArticleRepository : IArticleRepository
                 articles.Add(article);
             }
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
     {
+        CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
 
@@ -59,7 +61,7 @@ public class SQLArticleRepository : IArticleRepository
                 "SELECT *, row_number() OVER (ORDER BY \"Id\") AS rNum " +
                 "FROM \"Articles\"" +
             ") AS subquery WHERE rnum = @RowNum";
-        
+
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -83,16 +85,20 @@ public class SQLArticleRepository : IArticleRepository
 
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Article> articles)
     {
+        CleanUp();
+        var newAuthor = new Author { UserId = new EntityId("1"), AuthorName = "Test Author" };
+        _context.Authors.Add(newAuthor);
+        _context.SaveChanges();
+        
         var query = "INSERT INTO \"Articles\" " +
-                    "(\"Title\", \"BodyText\", \"Updated\", \"Deleted\")" +
+                    "(\"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\")" +
                     " VALUES " +
-                    "(@Title, @BodyText, @Updated, @Deleted)";
+                    "(@Title, @BodyText, @Updated, @Deleted, @AuthorUserId)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -105,21 +111,22 @@ public class SQLArticleRepository : IArticleRepository
             command.Parameters.AddWithValue("@BodyText", article.BodyText);
             command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
             command.Parameters.AddWithValue("@Deleted", DBNull.Value);
+            command.Parameters.AddWithValue("@AuthorUserId", int.Parse(newAuthor.UserId.Value));
 
             command.ExecuteNonQuery();
         }
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Update(ICollection<Article> articles)
     {
+        CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
-        
+
         var query = "UPDATE \"Articles\" SET \"Title\" = @Title, \"BodyText\" = @BodyText, \"Updated\" = @Updated WHERE \"Id\" = @Id";
-        
+
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -134,19 +141,20 @@ public class SQLArticleRepository : IArticleRepository
 
             command.ExecuteNonQuery();
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Delete(ICollection<Article> articles)
     {
+        CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
-        
+
         var query = "DELETE FROM \"Articles\" WHERE \"Id\" = @Id";
-        
+
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -158,15 +166,16 @@ public class SQLArticleRepository : IArticleRepository
 
             command.ExecuteNonQuery();
         }
+
         connection.Close();
         stopwatch.Stop();
-        CleanUp();
         return stopwatch.Elapsed;
     }
 
     private void CleanUp()
     {
         _context.Articles.RemoveRange(_context.Articles);
+        _context.Authors.RemoveRange(_context.Authors);
         _context.SaveChanges();
     }
 }
