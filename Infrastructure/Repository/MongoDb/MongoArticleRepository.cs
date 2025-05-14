@@ -4,7 +4,6 @@ using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.DatabaseModels;
 using Database_Benchmarking.Infrastructure.Mapper;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Database_Benchmarking.Infrastructure.Repository.MongoDb;
