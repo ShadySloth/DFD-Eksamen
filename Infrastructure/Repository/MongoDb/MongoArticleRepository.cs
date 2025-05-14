@@ -20,6 +20,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan GetAll(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articleDbModel);
@@ -31,8 +32,24 @@ public class MongoArticleRepository : IArticleRepository
         return elapsedTime;
     }
 
+    public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+    {
+        CleanUp();
+        Stopwatch stopwatch = new Stopwatch();
+        var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
+        _context.Articles.InsertMany(articleDbModel);
+        
+        stopwatch.Start();
+        var foundArticle = _context.Articles.Find(article => article.Id == articleDbModel.
+            ElementAt(indexToGet).Id).ToList();
+        stopwatch.Stop();
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
+    }
+
     public TimeSpan Create(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
         var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
@@ -44,11 +61,13 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan Update(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         
         var replacementArticles = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(replacementArticles);
-        var filter = Builders<ArticleDbModel>.Filter.In(article => article.Id, replacementArticles.Select(article => article.Id));
+        var filter = Builders<ArticleDbModel>.Filter.In(article => article.Id, replacementArticles.
+            Select(article => article.Id));
         var update = Builders<ArticleDbModel>.Update.Set(article => article.Updated, DateTime.Now);
         
         stopwatch.Start();
@@ -60,15 +79,22 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan Delete(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         var articlesToDelete = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articlesToDelete);
-        var filter = Builders<ArticleDbModel>.Filter.In(article => article.Id, articlesToDelete.Select(article => article.Id));
+        var filter = Builders<ArticleDbModel>.Filter.In(article => article.Id, articlesToDelete.
+            Select(article => article.Id));
         
         stopwatch.Start();
         _context.Articles.DeleteMany(filter);
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
+    }
+    
+    private void CleanUp()
+    {
+        _context.Articles.DeleteMany(_ => true);
     }
 }
