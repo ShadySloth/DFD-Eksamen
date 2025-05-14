@@ -15,6 +15,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan GetAll(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -26,8 +27,29 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
         }
 
+        public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+        {
+            ClearArticles();
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+            
+            var entId = new EntityId(
+                value: indexToGet.ToString());
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            // Her henter du artiklen fra databasen ved ID
+            var foundArticle = _context.Articles.Find(entId);
+
+            stopwatch.Stop();
+            return stopwatch.Elapsed;
+        }
+
+
         public TimeSpan Create(ICollection<Article> articles)
         {
+            ClearArticles();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -40,6 +62,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Update(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
 
@@ -62,6 +85,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Delete(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
 
@@ -80,6 +104,13 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
+        
+        private void ClearArticles()
+        {
+            _context.Authors.RemoveRange(_context.Authors);
+            _context.Articles.RemoveRange(_context.Articles);
+            _context.SaveChanges();
+        } 
     }
 
+    

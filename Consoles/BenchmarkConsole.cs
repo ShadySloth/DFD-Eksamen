@@ -18,11 +18,12 @@ public static class BenchmarkConsole
         while (!endApp)
         {
             Console.WriteLine("Select a database to benchmark:");
-            Console.WriteLine("  1. Relational");
-            Console.WriteLine("  2. NoSQL");
+            Console.WriteLine("  1. Relational ORM");
+            Console.WriteLine("  2. Relational Rawdogging SQL");
+            Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
-            var choice = GetValidInput(["1", "2"]);
+            var choice = GetValidInput(["1", "2", "3"]);
 
             switch (choice)
             {
@@ -30,6 +31,9 @@ public static class BenchmarkConsole
                     Benchmark(DatabaseType.Relational);
                     break;
                 case "2":
+                    Benchmark(DatabaseType.RelationalRawdogging);
+                    break;
+                case "3":
                     Benchmark(DatabaseType.NoSql);
                     break;
             }
@@ -91,6 +95,30 @@ public static class BenchmarkConsole
             Console.WriteLine("Invalid input. Please enter a number.");
         }
     }
+    
+    private static int GetIndexInput(int count)
+    {
+        Console.WriteLine("\nEnter the index of the record to benchmark.");
+        while (true)
+        {
+            Console.Write($"Index to find (must be smaller than {count}: ");
+
+            var input = Console.ReadLine();
+            
+            if (input == "q")
+            {
+                Console.WriteLine("Quitting the application. Goodbye!");
+                Environment.Exit(0);
+            }
+            
+            if (int.TryParse(input, out var number) && number < count)
+            {
+                return number;
+            }
+
+            Console.WriteLine("Invalid input. Please enter a number.");
+        }
+    }
 
     private static void Benchmark(DatabaseType databaseType)
     {
@@ -98,17 +126,19 @@ public static class BenchmarkConsole
 
         Console.WriteLine("\nPick a benchmarking method:");
         Console.WriteLine("  1. Insert");
-        Console.WriteLine("  2. Query");
-        Console.WriteLine("  3. Update");
-        Console.WriteLine("  4. Delete");
-        Console.WriteLine("  5. All");
+        Console.WriteLine("  2. Query All");
+        Console.WriteLine("  3. Query Single");
+        Console.WriteLine("  4. Update");
+        Console.WriteLine("  5. Delete");
+        Console.WriteLine("  6. All");
         Console.WriteLine();
 
-        var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+        var choice = GetValidInput(["1", "2", "3", "4", "5", "6"]);
 
         Console.WriteLine();
         
         var count = 0;
+        var indexToGet = 0;
         switch (choice)
         {
             case "1":
@@ -118,24 +148,32 @@ public static class BenchmarkConsole
                 break;
             case "2":
                 count = GetNumberInput();
-                time = BenchmarkFetch(count, service);
+                time = BenchmarkFetchAll(count, service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "3":
                 count = GetNumberInput();
-                time = BenchmarkUpdate(count, service);
+                indexToGet = GetIndexInput(count);
+                time = BenchmarkFetchOne(count, indexToGet,service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "4":
                 count = GetNumberInput();
-                time = BenchmarkDelete(count, service);
+                time = BenchmarkUpdate(count, service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "5":
                 count = GetNumberInput();
+                time = BenchmarkDelete(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
+                break;
+            case "6":
+                count = GetNumberInput();
+                indexToGet = GetIndexInput(count);
                 Console.WriteLine("\nBenchmarking All...");
                 var totalTime = BenchmarkCreate(count, service);
-                totalTime += BenchmarkFetch(count, service);
+                totalTime += BenchmarkFetchAll(count, service);
+                totalTime += BenchmarkFetchOne(count, indexToGet, service);
                 totalTime += BenchmarkUpdate(count, service);
                 totalTime += BenchmarkDelete(count, service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(totalTime)} ms.");
@@ -163,11 +201,21 @@ public static class BenchmarkConsole
         return time + time2;
     }
 
-    private static TimeSpan BenchmarkFetch(int count, ServiceController service)
+    private static TimeSpan BenchmarkFetchAll(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetches...");
         var time = service.GetAllArticles(count);
         var time2 = service.GetAllAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
+    
+    private static TimeSpan BenchmarkFetchOne(int count, int indexToGet, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet}...");
+        var time = service.GetByIdArticles(count, indexToGet);
+        var time2 = service.GetByIdAuthors(count, indexToGet);
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;

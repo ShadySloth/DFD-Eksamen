@@ -3,5 +3,6 @@
 public enum DatabaseType
 {
     Relational,
+    RelationalRawdogging,
     NoSql
 }
