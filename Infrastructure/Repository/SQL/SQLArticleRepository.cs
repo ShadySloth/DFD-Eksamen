@@ -50,7 +50,7 @@ public class SQLArticleRepository : IArticleRepository
 
     public TimeSpan Create(ICollection<Article> articles)
     {
-        var query = "INSERT INTO Articles (Id, Title, BodyText, Updated, Deleted, AuthorId) VALUES (@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
+        var query = "INSERT INTO \"Articles\" (Id, Title, BodyText, Updated, Deleted, AuthorId) VALUES (@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
