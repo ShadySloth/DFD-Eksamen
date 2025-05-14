@@ -83,19 +83,20 @@ public class SQLAuthorRepository : IAuthorRepository
 
     public TimeSpan Create(ICollection<Author> authors)
     {
-        CleanUp();
-        var query = "INSERT INTO \"Authors\" (\"AuthorName\") VALUES (@Name)";
+        var query = "COPY \"Authors\" (\"AuthorName\") FROM STDIN (FORMAT BINARY)";
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
-        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        
+        using var writer = connection.BeginBinaryImport(query);
+        
         var stopwatch = Stopwatch.StartNew();
         foreach (var author in authors)
         {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Name", author.AuthorName);
-            command.ExecuteNonQuery();
+            writer.StartRow();
+            writer.Write(author.AuthorName);
         }
-
+        
+        writer.Complete();
         connection.Close();
         stopwatch.Stop();
         return stopwatch.Elapsed;

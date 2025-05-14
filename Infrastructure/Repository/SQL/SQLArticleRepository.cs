@@ -94,27 +94,26 @@ public class SQLArticleRepository : IArticleRepository
         var newAuthor = new Author { UserId = new EntityId("1"), AuthorName = "Test Author" };
         _context.Authors.Add(newAuthor);
         _context.SaveChanges();
-        
-        var query = "INSERT INTO \"Articles\" " +
-                    "(\"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\")" +
-                    " VALUES " +
-                    "(@Title, @BodyText, @Updated, @Deleted, @AuthorUserId)";
+
+        var query = "COPY \"Articles\" (\"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\") " +
+                    "FROM STDIN (FORMAT BINARY)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
-        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        
+        using var writer = connection.BeginBinaryImport(query);
         var stopwatch = Stopwatch.StartNew();
         foreach (var article in articles)
         {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Title", article.Title);
-            command.Parameters.AddWithValue("@BodyText", article.BodyText);
-            command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
-            command.Parameters.AddWithValue("@Deleted", DBNull.Value);
-            command.Parameters.AddWithValue("@AuthorUserId", int.Parse(newAuthor.UserId.Value));
-
-            command.ExecuteNonQuery();
+            writer.StartRow();
+            writer.Write(article.Title);
+            writer.Write(article.BodyText);
+            writer.Write(DateTime.UtcNow);
+            writer.WriteNull();
+            writer.Write(int.Parse(newAuthor.UserId.Value));
         }
+
+        writer.Complete();
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
