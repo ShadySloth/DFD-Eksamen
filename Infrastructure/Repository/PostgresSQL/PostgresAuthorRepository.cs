@@ -21,7 +21,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var newAuthors = _context.Authors.AsNoTracking().ToList();
+            var newAuthors = _context.Authors.ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere

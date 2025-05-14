@@ -20,7 +20,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var newArticles = _context.Articles.AsNoTracking().ToList();
+            var newArticles = _context.Articles.ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
