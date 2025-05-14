@@ -152,22 +152,19 @@ public class SQLArticleRepository : IArticleRepository
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
 
-        var query = "DELETE FROM \"Articles\" WHERE \"Id\" = @Id";
+        var ids = articles.Select(a => int.Parse(a.Id.Value)).ToArray();
+        var query = "DELETE FROM \"Articles\" WHERE \"Id\" = ANY(@Ids)";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
-        var stopwatch = Stopwatch.StartNew();
-        foreach (var article in articles)
-        {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Id", int.Parse(article.Id.Value));
+        command.Parameters.AddWithValue("@Ids", ids);
 
-            command.ExecuteNonQuery();
-        }
+        var stopwatch = Stopwatch.StartNew();
+        command.ExecuteNonQuery();
+        stopwatch.Stop();
 
         connection.Close();
-        stopwatch.Stop();
         return stopwatch.Elapsed;
     }
 

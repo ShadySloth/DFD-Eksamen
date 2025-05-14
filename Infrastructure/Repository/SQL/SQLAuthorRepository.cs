@@ -132,20 +132,19 @@ public class SQLAuthorRepository : IAuthorRepository
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
         
-        var query = "DELETE FROM \"Authors\" WHERE \"UserId\" = @UserId";
+        var UserIds = authors.Select(a => int.Parse(a.UserId.Value)).ToArray();
+        var query = "DELETE FROM \"Authors\" WHERE \"UserId\" = ANY(@UserIds)";
+        
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@UserIds", UserIds);
+        
         var stopwatch = Stopwatch.StartNew();
-        foreach (var author in authors)
-        {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", int.Parse(author.UserId.Value));
-            command.ExecuteNonQuery();
-        }
-        connection.Close();
+        command.ExecuteNonQuery();
         stopwatch.Stop();
         
+        connection.Close();
         return stopwatch.Elapsed;
     }
 
