@@ -20,7 +20,7 @@ public class SQLArticleRepository : IArticleRepository
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
 
-        var query = $"SELECT * FROM \"Articles\" LIMIT {articles.Count}";
+        var query = $"SELECT * FROM \"Articles\"";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -39,7 +39,7 @@ public class SQLArticleRepository : IArticleRepository
                     BodyText = reader.GetString(2),
                     Updated = reader.GetDateTime(3),
                     Deleted = !reader.IsDBNull(4) ? reader.GetDateTime(4) : (DateTime?)null,
-                    AuthorId = new EntityId(reader.GetInt16(5).ToString())
+                    AuthorId = new EntityId(reader.GetInt32(5).ToString())
                 };
                 articles.Add(article);
             }
@@ -78,7 +78,7 @@ public class SQLArticleRepository : IArticleRepository
                     BodyText = reader.GetString(2),
                     Updated = reader.GetDateTime(3),
                     Deleted = !reader.IsDBNull(4) ? reader.GetDateTime(4) : (DateTime?)null,
-                    AuthorId = new EntityId(reader.GetInt16(5).ToString())
+                    AuthorId = new EntityId(reader.GetInt32(5).ToString())
                 };
             }
         }
@@ -124,25 +124,37 @@ public class SQLArticleRepository : IArticleRepository
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
 
-        var query = "UPDATE \"Articles\" SET \"Title\" = @Title, \"BodyText\" = @BodyText, \"Updated\" = @Updated WHERE \"Id\" = @Id";
+        var ids = articles.Select(a => int.Parse(a.Id.Value)).ToArray();
+        var titles = articles.Select(a => a.Title ?? string.Empty).ToArray();
+        var bodyTexts = articles.Select(a => a.BodyText = $"UPdated now: {a.Id.Value}"?? string.Empty).ToArray();
+        var updatedTimestamps = Enumerable.Repeat(DateTime.UtcNow, articles.Count).ToArray();
 
+        var query = @"
+        UPDATE ""Articles"" a
+        SET ""Title"" = data.title,
+            ""BodyText"" = data.bodyText,
+            ""Updated"" = data.updated
+        FROM (
+            SELECT UNNEST(@ids) AS id,
+                   UNNEST(@titles) AS title,
+                   UNNEST(@bodyTexts) AS bodyText,
+                   UNNEST(@updateds) AS updated
+        ) AS data
+        WHERE a.""Id"" = data.id;
+    ";
+        
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@ids", ids);
+        command.Parameters.AddWithValue("@titles", titles);
+        command.Parameters.AddWithValue("@bodyTexts", bodyTexts);
+        command.Parameters.AddWithValue("@updateds", updatedTimestamps);
+
         var stopwatch = Stopwatch.StartNew();
-        foreach (var article in articles)
-        {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Id", int.Parse(article.Id.Value));
-            command.Parameters.AddWithValue("@Title", article.Title);
-            command.Parameters.AddWithValue("@BodyText", article.BodyText);
-            command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
-
-            command.ExecuteNonQuery();
-        }
-
-        connection.Close();
+        command.ExecuteNonQuery();
         stopwatch.Stop();
+
         return stopwatch.Elapsed;
     }
 
