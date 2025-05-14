@@ -21,16 +21,13 @@ public class RepositoryFactory
     {
         _postgresDbContext = postgresDbContext;
     }
-    
-    public RepositoryFactory()
-    { }
 
     public IArticleRepository ArticleRepository(DatabaseType databaseType)
     {
         return databaseType switch
         {
-            DatabaseType.EFCore => new PostgresArticleRepository(_postgresDbContext!),
-            DatabaseType.Relational => new SQLArticleRepository(),
+            DatabaseType.EfCore => new PostgresArticleRepository(_postgresDbContext!),
+            DatabaseType.Sql => new SQLArticleRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoArticleRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -40,8 +37,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.EFCore => new PostgresAuthorRepository(_postgresDbContext!),
-            DatabaseType.Relational => new SQLAuthorRepository(),
+            DatabaseType.EfCore => new PostgresAuthorRepository(_postgresDbContext!),
+            DatabaseType.Sql => new SQLAuthorRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoAuthorRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -51,8 +48,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.EFCore => new PostgresGenreRepository(_postgresDbContext!),
-            DatabaseType.Relational => new SQLGenreRepository(),
+            DatabaseType.EfCore => new PostgresGenreRepository(_postgresDbContext!),
+            DatabaseType.Sql => new SQLGenreRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoGenreRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };

@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Database_Benchmarking.Domain.Entities;
+using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Infrastructure.Repository.SQL;
@@ -8,8 +8,17 @@ namespace Database_Benchmarking.Infrastructure.Repository.SQL;
 public class SQLArticleRepository : IArticleRepository
 {
     private readonly string _connectionString = "Host=localhost;Database=postgres;Username=postgres;Password=postgres";
+    private readonly PostgresDbContext _context;
+    public SQLArticleRepository(PostgresDbContext context)
+    {
+        _context = context;
+    }
+    
     public TimeSpan GetAll(ICollection<Article> articles)
     {
+        _context.Articles.AddRange(articles);
+        _context.SaveChanges();
+        
         var query = "SELECT * FROM Articles";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
@@ -26,10 +35,10 @@ public class SQLArticleRepository : IArticleRepository
                 {
                     Id = new EntityId(reader.GetString(0)),
                     Title = reader.GetString(1),
-                    AuthorId = new EntityId(reader.GetString(0)),
                     BodyText = reader.GetString(2),
                     Updated = reader.GetDateTime(3),
-                    Deleted = reader.GetDateTime(4)
+                    Deleted = reader.GetDateTime(4),
+                    AuthorId = new EntityId(reader.GetString(5))
                 };
                 articles.Add(article);
             }

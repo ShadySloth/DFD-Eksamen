@@ -1,7 +1,6 @@
 ﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {

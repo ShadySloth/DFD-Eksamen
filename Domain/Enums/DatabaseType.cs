@@ -2,7 +2,7 @@
 
 public enum DatabaseType
 {
-    Relational,
-    EFCore,
+    Sql,
+    EfCore,
     NoSql
 }

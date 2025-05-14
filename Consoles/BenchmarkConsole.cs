@@ -28,10 +28,10 @@ public static class BenchmarkConsole
             switch (choice)
             {
                 case "1":
-                    Benchmark(DatabaseType.EFCore);
+                    Benchmark(DatabaseType.EfCore);
                     break;
                 case "2":
-                    Benchmark(DatabaseType.Relational);
+                    Benchmark(DatabaseType.Sql);
                     break;
                 case "3":
                     Benchmark(DatabaseType.NoSql);
