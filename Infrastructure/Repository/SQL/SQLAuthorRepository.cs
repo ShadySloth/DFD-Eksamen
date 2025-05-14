@@ -34,7 +34,7 @@ public class SQLAuthorRepository : IAuthorRepository
             {
                 var author = new Author
                 {
-                    UserId = new EntityId(reader.GetString(0)),
+                    UserId = new EntityId(reader.GetInt32(0).ToString()),
                     Name = reader.GetString(1),
                 };
                 fetchedAuthors.Add(author);
@@ -44,6 +44,11 @@ public class SQLAuthorRepository : IAuthorRepository
         stopwatch.Stop();
         CleanUp();
         return stopwatch.Elapsed;
+    }
+
+    public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
+    {
+        throw new NotImplementedException();
     }
 
     public TimeSpan Create(ICollection<Author> authors)

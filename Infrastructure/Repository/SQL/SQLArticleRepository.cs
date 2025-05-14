@@ -33,12 +33,12 @@ public class SQLArticleRepository : IArticleRepository
                 // Process each article
                 var article = new Article
                 {
-                    Id = new EntityId(reader.GetString(0)),
+                    Id = new EntityId(reader.GetInt32(0).ToString()),
                     Title = reader.GetString(1),
                     BodyText = reader.GetString(2),
                     Updated = reader.GetDateTime(3),
                     Deleted = !reader.IsDBNull(4) ? reader.GetDateTime(4) : (DateTime?)null,
-                    AuthorId = new EntityId(reader.GetString(5))
+                    AuthorId = new EntityId(reader.GetInt16(5).ToString())
                 };
                 articles.Add(article);
             }
@@ -47,6 +47,11 @@ public class SQLArticleRepository : IArticleRepository
         stopwatch.Stop();
         CleanUp();
         return stopwatch.Elapsed;
+    }
+
+    public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+    {
+        throw new NotImplementedException();
     }
 
     public TimeSpan Create(ICollection<Article> articles)
