@@ -4,6 +4,7 @@ using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.DatabaseModels;
 using Database_Benchmarking.Infrastructure.Mapper;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Database_Benchmarking.Infrastructure.Repository.MongoDb;
@@ -17,6 +18,7 @@ public class MongoAuthorRepository : IAuthorRepository
     }
     public TimeSpan GetAll(ICollection<Author> authors)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         
         var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
@@ -29,8 +31,25 @@ public class MongoAuthorRepository : IAuthorRepository
         return elapsedTime;
     }
 
+    public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
+    {
+        CleanUp();
+        Stopwatch stopwatch = new Stopwatch();
+        
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(authorDbModel);
+        
+        stopwatch.Start();
+        var foundAuthor = _context.Authors.Find(author => author.UserId == authorDbModel.
+            ElementAt(indexToGet).UserId).ToList();
+        stopwatch.Stop();
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
+    }
+
     public TimeSpan Create(ICollection<Author> authors)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
         var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
@@ -42,6 +61,7 @@ public class MongoAuthorRepository : IAuthorRepository
 
     public TimeSpan Update(ICollection<Author> authors)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         
         var replacementAuthors = authors.Select(EntityMapper.ToDbModel).ToList();
@@ -59,6 +79,7 @@ public class MongoAuthorRepository : IAuthorRepository
 
     public TimeSpan Delete(ICollection<Author> authors)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         
         var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
@@ -71,5 +92,9 @@ public class MongoAuthorRepository : IAuthorRepository
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
+    }
+    private void CleanUp()
+    {
+        _context.Authors.DeleteMany(_ => true);
     }
 }

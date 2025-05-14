@@ -2,7 +2,7 @@
 
 public enum DatabaseType
 {
-    Sql,
-    EfCore,
+    Relational,
+    RelationalRawdogging,
     NoSql
 }

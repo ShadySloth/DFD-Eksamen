@@ -1,5 +1,6 @@
 using Database_Benchmarking.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Database_Benchmarking.Infrastructure.Context;
 
@@ -14,45 +15,45 @@ public class PostgresDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Ignorer EntityId som en entitet
+        // Konvertering fra EntityId til int
+        var entityIdToIntConverter = new ValueConverter<EntityId, int>(
+            id => int.Parse(id.Value),         // EntityId → int
+            val => new EntityId(val.ToString()) // int → EntityId
+        );
+    
+        // Ignorer EntityId som en entitet, da den kun bruges som en wrapper
         modelBuilder.Ignore<EntityId>();
 
-        modelBuilder.Entity<Article>(entity =>
+        // Definer konvertering for Article, Author og Genre
+        modelBuilder.Entity<Article>(b =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id)
-                .HasConversion(
-                    v => v.Value,
-                    v => new EntityId(v));
+            b.HasKey(e => e.Id);
+            b.Property(e => e.Id).HasConversion(entityIdToIntConverter);
         });
 
-        modelBuilder.Entity<Author>(entity =>
+        modelBuilder.Entity<Author>(b =>
         {
-            entity.HasKey(e => e.UserId);
-            entity.Property(e => e.UserId)
-                .HasConversion(
-                    v => v.Value,
-                    v => new EntityId(v));
+            b.HasKey(e => e.UserId);
+            b.Property(e => e.UserId).HasConversion(entityIdToIntConverter);
         });
 
-        modelBuilder.Entity<Genre>(entity =>
+        modelBuilder.Entity<Genre>(b =>
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id)
-                .HasConversion(
-                    v => v.Value,
-                    v => new EntityId(v));
+            b.HasKey(e => e.Id);
+            b.Property(e => e.Id).HasConversion(entityIdToIntConverter);
+
+            // Seed data – konverter EntityId til int værdi
+            b.HasData(
+                new Genre { Id = new EntityId("1"), Type = "Action" },
+                new Genre { Id = new EntityId("2"), Type = "Comedy" },
+                new Genre { Id = new EntityId("3"), Type = "Drama" },
+                new Genre { Id = new EntityId("4"), Type = "Horror" },
+                new Genre { Id = new EntityId("5"), Type = "Fantasy" }
+            );
         });
-        
-        // add hardcoded gernes
-        modelBuilder.Entity<Genre>().HasData(
-            new Genre { Id = new EntityId("11111111-1111-1111-1111-111111111111"), Type = "Action" },
-            new Genre { Id = new EntityId("22222222-2222-2222-2222-222222222222"), Type = "Comedy" },
-            new Genre { Id = new EntityId("33333333-3333-3333-3333-333333333333"), Type = "Drama" },
-            new Genre { Id = new EntityId("44444444-4444-4444-4444-444444444444"), Type = "Horror" },
-            new Genre { Id = new EntityId("55555555-5555-5555-5555-555555555555"), Type = "Fantasy" }
-        );
     }
+
+
 
 }
 

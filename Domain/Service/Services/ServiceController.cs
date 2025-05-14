@@ -51,6 +51,12 @@ public class ServiceController : IServiceController
         var articles = _mockDataService.GenerateMockArticles(count);
         return _articleService.GetAllArticles(articles);
     }
+    
+    public TimeSpan GetByIdArticles(int count, int indexToGet)
+    {
+        var articles = _mockDataService.GenerateMockArticles(count);
+        return _articleService.GetById(articles, indexToGet);
+    }
 
     public TimeSpan DeleteArticles(int count)
     {
@@ -74,6 +80,12 @@ public class ServiceController : IServiceController
     {
         var authors = _mockDataService.GenerateMockAuthors(count);
         return _authorService.GetAll(authors);
+    }
+    
+    public TimeSpan GetByIdAuthors(int count, int indexToGet)
+    {
+        var authors = _mockDataService.GenerateMockAuthors(count);
+        return _authorService.GetById(authors, indexToGet);
     }
 
     public TimeSpan DeleteAuthors(int count)

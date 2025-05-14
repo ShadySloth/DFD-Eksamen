@@ -18,6 +18,11 @@ namespace Database_Benchmarking.Domain.Service.Services
             return _repository.GetAll(articles);
         }
 
+        public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+        {
+            return _repository.GetById(articles, indexToGet);
+        }
+
         public TimeSpan CreateArticle(ICollection<Article> articles)
         {
             return _repository.Create(articles);

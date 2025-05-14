@@ -15,7 +15,7 @@ namespace Database_Benchmarking.Infrastructure.MockObjectBuilders.Builders
             {
                 var author = new Author
                 {
-                    Name = $"{baseName} {i + 1}" // Unikt navn med baseName og et tal tilføjet
+                    Name = $"{baseName} {i + 1}"
                 };
 
                 authors.Add(author);
