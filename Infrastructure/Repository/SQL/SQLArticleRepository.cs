@@ -123,6 +123,7 @@ public class SQLArticleRepository : IArticleRepository
         CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
+        _context.ChangeTracker.Clear();
 
         var ids = articles.Select(a => int.Parse(a.Id.Value)).ToArray();
         var titles = articles.Select(a => a.Title ?? string.Empty).ToArray();
