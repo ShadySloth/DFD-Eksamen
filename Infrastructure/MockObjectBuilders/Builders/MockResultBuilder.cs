@@ -41,18 +41,18 @@ public class ResultSetMocker
         return resultSets;
     }
 
-    private static TimeSpan GetRandomTimeSpan()
+    private static int GetRandomTimeSpan()
     {
         // Generate a random TimeSpan between 0 and 1 hour
         int seconds = _random.Next(0, 3600);
-        return TimeSpan.FromSeconds(seconds);
+        return seconds;
     }
 
-    private static TimeSpan GetAverageTimeSpan(int batchSize)
+    private static int GetAverageTimeSpan(int batchSize)
     {
         // Generate an average TimeSpan based on the batch size
         int seconds = _random.Next(0, 3600); // Random time span, potentially adjusted by batch size
-        return TimeSpan.FromSeconds(seconds / batchSize); // Adjust time for batch size
+        return seconds;
     }
 
     private static string GetRandomTestType()

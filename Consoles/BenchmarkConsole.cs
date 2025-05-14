@@ -1,5 +1,7 @@
-﻿using Database_Benchmarking.Domain.Enums;
+﻿using Database_Benchmarking.Consoles.SharedModels;
+using Database_Benchmarking.Domain.Enums;
 using Database_Benchmarking.Domain.Service.Services;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Database_Benchmarking.Consoles;
 
@@ -123,8 +125,416 @@ public static class BenchmarkConsole
             Console.WriteLine("Invalid input. Please enter a number.");
         }
     }
-    
-    
+
+    private static void BenchmarkAll()
+    {
+        var relationalOrmService = new ServiceController(DatabaseType.Relational);
+        //var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+        var noSqlService = new ServiceController(DatabaseType.NoSql);
+
+        var count = GetNumberInput();
+        var indexToGet = GetIndexInput(count);
+        
+        Console.WriteLine("\nBenchmarking All...");
+        var resultSetCreateArticles = new List<ResultSet>();
+        var resultSetCreateAuthors = new List<ResultSet>();
+        var resultSetFetchAllArticles = new List<ResultSet>();
+        var resultSetFetchAllAuthors = new List<ResultSet>();
+        var resultSetFetchOneArticle = new List<ResultSet>();
+        var resultSetFetchOneAuthor = new List<ResultSet>();
+        var resultSetUpdateArticles = new List<ResultSet>();
+        var resultSetUpdateAuthors = new List<ResultSet>();
+        var resultSetDeleteArticles = new List<ResultSet>();
+        var resultSetDeleteAuthors = new List<ResultSet>();
+        for (int indexTest = 0; indexTest < 5; indexTest++)
+        {
+            switch (indexTest)
+            {
+                case 0:
+                    Console.WriteLine($"\nBenchmarking {count} insert articles...");
+                    resultSetCreateArticles = BenchmarkTestInsertArticles(count, relationalOrmService, noSqlService, 
+                        resultSetCreateArticles);
+                    break;
+                case 1:
+                    Console.WriteLine($"\nBenchmarking {count} query all articles...");
+                    resultSetFetchAllArticles = BenchmarkTestFetchAllArticles(count, relationalOrmService, noSqlService, 
+                        resultSetFetchAllArticles);
+                    break;
+                case 2:
+                    Console.WriteLine($"\nBenchmarking {count} query one article...");
+                    resultSetFetchOneArticle = BenchmarkTestFetchOneArticle(count, indexToGet, 
+                        relationalOrmService, noSqlService, resultSetFetchOneArticle);
+                    break;
+                case 3:
+                    Console.WriteLine($"\nBenchmarking {count} update articles...");
+                    resultSetUpdateArticles = BenchmarkTestUpdateArticles(count, relationalOrmService, noSqlService, 
+                        resultSetUpdateArticles);
+                    break;
+                case 4:
+                    Console.WriteLine($"\nBenchmarking {count} delete articles...");
+                    resultSetDeleteArticles = BenchmarkTestDeleteArticles(count, relationalOrmService, noSqlService, 
+                        resultSetDeleteArticles);
+                    break;
+            }
+        }
+        
+        Console.WriteLine("\n---------------------------------------------");
+        
+        for (int indexTest = 0; indexTest < 5; indexTest++)
+        {
+            switch (indexTest)
+            {
+                case 0:
+                    Console.WriteLine($"\nBenchmarking {count} insert authors...");
+                    resultSetCreateAuthors = BenchmarkTestInsertAuthors(count, relationalOrmService, noSqlService, 
+                        resultSetCreateAuthors);
+                    break;
+                case 1:
+                    Console.WriteLine($"\nBenchmarking {count} query all authors...");
+                    resultSetFetchAllAuthors = BenchmarkTestFetchAllAuthors(count, relationalOrmService, noSqlService, 
+                        resultSetFetchAllAuthors);
+                    break;
+                case 2:
+                    Console.WriteLine($"\nBenchmarking {count} query one author...");
+                    resultSetFetchOneAuthor = BenchmarkTestFetchOneAuthor(count, indexToGet, 
+                        relationalOrmService, noSqlService, resultSetFetchOneAuthor);
+                    break;
+                case 3:
+                    Console.WriteLine($"\nBenchmarking {count} update authors...");
+                    resultSetUpdateAuthors = BenchmarkTestUpdateAuthors(count, relationalOrmService, noSqlService, 
+                        resultSetUpdateAuthors);
+                    break;
+                case 4:
+                    Console.WriteLine($"\nBenchmarking {count} delete authors...");
+                    resultSetDeleteAuthors = BenchmarkTestDeleteAuthors(count, relationalOrmService, noSqlService, 
+                        resultSetDeleteAuthors);
+                    break;
+            }
+        }
+    }
+
+    private static List<ResultSet> BenchmarkTestDeleteAuthors(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetDeleteAuthors)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkDeleteAuthors(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkDeleteAuthors(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkDeleteAuthors(count, noSqlService)),
+                TestType = "DeleteAuthors",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetDeleteAuthors.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetDeleteAuthors.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetDeleteAuthors.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetDeleteAuthors.Average(x => x.MongoDb)),
+                    TestType = "DeleteAuthors",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetDeleteAuthors.Add(average);
+            }
+        }
+
+        return resultSetDeleteAuthors;
+    }
+
+    private static List<ResultSet> BenchmarkTestUpdateAuthors(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetUpdateAuthors)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkUpdateAuthors(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkUpdateAuthors(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkUpdateAuthors(count, noSqlService)),
+                TestType = "UpdateAuthors",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetUpdateAuthors.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetUpdateAuthors.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetUpdateAuthors.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetUpdateAuthors.Average(x => x.MongoDb)),
+                    TestType = "UpdateAuthors",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetUpdateAuthors.Add(average);
+            }
+        }
+
+        return resultSetUpdateAuthors;
+    }
+
+    private static List<ResultSet> BenchmarkTestFetchOneAuthor(int count, int indexToGet, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetFetchOneAuthor)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, noSqlService)),
+                TestType = "FetchOneAuthors",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetFetchOneAuthor.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetFetchOneAuthor.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetFetchOneAuthor.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetFetchOneAuthor.Average(x => x.MongoDb)),
+                    TestType = "FetchOneAuthors",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetFetchOneAuthor.Add(average);
+            }
+        }
+
+        return resultSetFetchOneAuthor;
+    }
+
+    private static List<ResultSet> BenchmarkTestFetchAllAuthors(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetFetchAllAuthors)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkFetchAllAuthors(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkFetchAllAuthors(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkFetchAllAuthors(count, noSqlService)),
+                TestType = "FetchAllAuthors",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetFetchAllAuthors.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetFetchAllAuthors.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetFetchAllAuthors.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetFetchAllAuthors.Average(x => x.MongoDb)),
+                    TestType = "FetchAllAuthors",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetFetchAllAuthors.Add(average);
+            }
+        }
+
+        return resultSetFetchAllAuthors;
+    }
+
+    private static List<ResultSet> BenchmarkTestInsertAuthors(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetCreateAuthors)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkCreateAuthors(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkCreateAuthors(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkCreateAuthors(count, noSqlService)),
+                TestType = "CreateAuthors",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetCreateAuthors.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetCreateAuthors.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetCreateAuthors.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetCreateAuthors.Average(x => x.MongoDb)),
+                    TestType = "CreateAuthors",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetCreateAuthors.Add(average);
+            }
+        }
+
+        return resultSetCreateAuthors;
+    }
+
+    private static List<ResultSet> BenchmarkTestDeleteArticles(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetDeleteArticles)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkDeleteArticles(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkDeleteArticles(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkDeleteArticles(count, noSqlService)),
+                TestType = "DeleteArticles",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetDeleteArticles.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetDeleteArticles.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetDeleteArticles.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetDeleteArticles.Average(x => x.MongoDb)),
+                    TestType = "DeleteArticles",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetDeleteArticles.Add(average);
+            }
+        }
+
+        return resultSetDeleteArticles;
+    }
+
+    private static List<ResultSet> BenchmarkTestUpdateArticles(int count, ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetUpdateArticles)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkUpdateArticles(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkUpdateArticles(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkUpdateArticles(count, noSqlService)),
+                TestType = "UpdateArticles",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetUpdateArticles.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetUpdateArticles.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetUpdateArticles.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetUpdateArticles.Average(x => x.MongoDb)),
+                    TestType = "UpdateArticles",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetUpdateArticles.Add(average);
+            }
+        }
+
+        return resultSetUpdateArticles;
+    }
+
+    private static List<ResultSet> BenchmarkTestFetchOneArticle(int count, int indexToGet, 
+        ServiceController relationalOrmService, ServiceController noSqlService, List<ResultSet> resultSetFetchOneArticles)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, noSqlService)),
+                TestType = "FetchOneArticles",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetFetchOneArticles.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetFetchOneArticles.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetFetchOneArticles.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetFetchOneArticles.Average(x => x.MongoDb)),
+                    TestType = "FetchOneArticles",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetFetchOneArticles.Add(average);
+            }
+        }
+
+        return resultSetFetchOneArticles;
+    }
+
+    private static List<ResultSet> BenchmarkTestFetchAllArticles(int count, ServiceController relationalOrmService, 
+        ServiceController noSqlService, List<ResultSet> resultSetFetchAllArticles)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkFetchAllArticles(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkFetchAllArticles(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkFetchAllArticles(count, noSqlService)),
+                TestType = "FetchAllArticles",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetFetchAllArticles.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetFetchAllArticles.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetFetchAllArticles.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetFetchAllArticles.Average(x => x.MongoDb)),
+                    TestType = "FetchAllArticles",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetFetchAllArticles.Add(average);
+            }
+        }
+
+        return resultSetFetchAllArticles;
+    }
+
+    private static List<ResultSet> BenchmarkTestInsertArticles(int count, ServiceController relationalOrmService, 
+        ServiceController noSqlService, List<ResultSet> resultSetCreateArticles)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            var resultSet = new ResultSet
+            {
+                EFCorePG = GetRoundedMilliseconds(BenchmarkCreateArticles(count, relationalOrmService)),
+                //NpgSql = GetRoundedMilliseconds(BenchmarkCreateArticles(count, relationalOrmService)),
+                MongoDb = GetRoundedMilliseconds(BenchmarkCreateArticles(count, noSqlService)),
+                TestType = "CreateArticles",
+                BatchSize = count,
+                IsAverage = false
+            };
+            resultSetCreateArticles.Add(resultSet);
+            if (index == 2)
+            {
+                var average = new ResultSet
+                {
+                    EFCorePG = Convert.ToInt32(resultSetCreateArticles.Average(x => x.EFCorePG)),
+                    //NpgSql = Convert.ToInt32(resultSetCreateArticles.Average(x => x.NpgSql)),
+                    MongoDb = Convert.ToInt32(resultSetCreateArticles.Average(x => x.MongoDb)),
+                    TestType = "CreateArticles",
+                    BatchSize = count,
+                    IsAverage = true
+                };
+                resultSetCreateArticles.Add(average);
+            }
+        }
+
+        return resultSetCreateArticles;
+    }
 
     private static void Benchmark(DatabaseType databaseType)
     {
@@ -201,7 +611,7 @@ public static class BenchmarkConsole
     {
         Console.WriteLine($"\nBenchmarking {count} Updates...");
         var time = service.UpdateArticles(count);
-        var time2 = service.UpdateArticles(count);
+        var time2 = service.UpdateAuthors(count);
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;
@@ -235,6 +645,85 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;
+    }
+    
+    private static TimeSpan BenchmarkCreateArticles(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Inserts...");
+        var time = service.CreateArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    private static TimeSpan BenchmarkCreateAuthors(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Inserts...");
+        var time = service.CreateAuthors(count);
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkFetchAllArticles(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetches...");
+        var time = service.GetAllArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkFetchAllAuthors(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetches...");
+        var time = service.GetAllAuthors(count);
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkFetchOneArticle(int count, int indexToGet, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet}...");
+        var time = service.GetByIdArticles(count, indexToGet);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkFetchOneAuthors(int count, int indexToGet, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet}...");
+        var time = service.GetByIdAuthors(count, indexToGet);
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkUpdateArticles(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Updates...");
+        var time = service.UpdateArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkUpdateAuthors(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Updates...");
+        var time = service.UpdateAuthors(count);
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkDeleteArticles(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Deletes...");
+        var time = service.DeleteArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        return time;
+    }
+    
+    private static TimeSpan BenchmarkDeleteAuthors(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Deletes...");
+        var time = service.DeleteAuthors(count);
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
+        return time;
     }
 
     private static int GetRoundedMilliseconds(TimeSpan timeSpan)
