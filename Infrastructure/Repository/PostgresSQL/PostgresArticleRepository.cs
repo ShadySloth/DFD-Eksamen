@@ -104,6 +104,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
         
         private void ClearArticles()
         {
+            _context.Authors.RemoveRange(_context.Authors);
             _context.Articles.RemoveRange(_context.Articles);
             _context.SaveChanges();
         } 
