@@ -3,8 +3,9 @@ using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 using Database_Benchmarking.Infrastructure.Repository.MongoDb;
 using Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
+using Database_Benchmarking.Infrastructure.Repository.SQL;
 
-namespace Database_Benchmarking.Domain;
+namespace Database_Benchmarking.Infrastructure.Factories;
 
 public class RepositoryFactory
 {
@@ -21,12 +22,15 @@ public class RepositoryFactory
         _postgresDbContext = postgresDbContext;
     }
     
+    public RepositoryFactory()
+    { }
 
     public IArticleRepository ArticleRepository(DatabaseType databaseType)
     {
         return databaseType switch
         {
-            DatabaseType.Relational => new PostgresArticleRepository(_postgresDbContext!),
+            DatabaseType.EFCore => new PostgresArticleRepository(_postgresDbContext!),
+            DatabaseType.Relational => new SQLArticleRepository(),
             DatabaseType.NoSql => new MongoArticleRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -36,7 +40,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.Relational => new PostgresAuthorRepository(_postgresDbContext!),
+            DatabaseType.EFCore => new PostgresAuthorRepository(_postgresDbContext!),
+            DatabaseType.Relational => new SQLAuthorRepository(),
             DatabaseType.NoSql => new MongoAuthorRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -46,7 +51,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.Relational => new PostgresGenreRepository(_postgresDbContext!),
+            DatabaseType.EFCore => new PostgresGenreRepository(_postgresDbContext!),
+            DatabaseType.Relational => new SQLGenreRepository(),
             DatabaseType.NoSql => new MongoGenreRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };

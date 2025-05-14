@@ -18,18 +18,22 @@ public static class BenchmarkConsole
         while (!endApp)
         {
             Console.WriteLine("Select a database to benchmark:");
-            Console.WriteLine("  1. Relational");
-            Console.WriteLine("  2. NoSQL");
+            Console.WriteLine("  1. EFCore");
+            Console.WriteLine("  2. SQL");
+            Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
-            var choice = GetValidInput(["1", "2"]);
+            var choice = GetValidInput(["1", "2", "3"]);
 
             switch (choice)
             {
                 case "1":
-                    Benchmark(DatabaseType.Relational);
+                    Benchmark(DatabaseType.EFCore);
                     break;
                 case "2":
+                    Benchmark(DatabaseType.Relational);
+                    break;
+                case "3":
                     Benchmark(DatabaseType.NoSql);
                     break;
             }
@@ -157,7 +161,7 @@ public static class BenchmarkConsole
     {
         Console.WriteLine($"\nBenchmarking {count} Updates...");
         var time = service.UpdateArticles(count);
-        var time2 = service.UpdateArticles(count);
+        var time2 = service.UpdateAuthors(count);
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;

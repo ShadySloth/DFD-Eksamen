@@ -3,5 +3,6 @@
 public enum DatabaseType
 {
     Relational,
+    EFCore,
     NoSql
 }

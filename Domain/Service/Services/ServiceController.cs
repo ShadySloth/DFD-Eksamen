@@ -17,14 +17,17 @@ public class ServiceController : IServiceController
         
         switch (databaseType)
         {
+            case DatabaseType.EFCore:
+                var postgresContextFactory = new PostgresContextFactory();
+                var postgresDbContext = postgresContextFactory.CreateDbContext([]);
+                repositoryFactory = new RepositoryFactory(postgresDbContext);
+                break;
             case DatabaseType.NoSql:
                 var mongoDbContext = new MongoDbContext();
                 repositoryFactory = new RepositoryFactory(mongoDbContext);
                 break;
             case DatabaseType.Relational:
-                var factory = new PostgresContextFactory();
-                var postgresDbContext = factory.CreateDbContext([]);
-                repositoryFactory = new RepositoryFactory(postgresDbContext);
+                repositoryFactory = new RepositoryFactory();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null);
