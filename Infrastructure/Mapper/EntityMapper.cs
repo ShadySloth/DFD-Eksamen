@@ -68,7 +68,7 @@ public static class EntityMapper
             UserId = string.IsNullOrWhiteSpace(author.UserId?.Value)
                 ? ObjectId.GenerateNewId()
                 : new ObjectId(author.UserId.Value),
-            Name = author.Name,
+            Name = author.AuthorName,
         };
     }
     
@@ -77,7 +77,7 @@ public static class EntityMapper
         return new Author
         {
             UserId = new EntityId(authorDbModel.UserId.ToString()),
-            Name = authorDbModel.Name
+            AuthorName = authorDbModel.Name
         };
     }
 }

@@ -22,7 +22,7 @@ public static class BenchmarkConsole
             Console.WriteLine("Select a database to benchmark:");
             Console.WriteLine("  0. Run all benchmarks");
             Console.WriteLine("  1. Relational ORM");
-            Console.WriteLine("  2. Relational Rawdogging SQL");
+            Console.WriteLine("  2. Relational SQL");
             Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
