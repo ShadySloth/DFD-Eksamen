@@ -48,12 +48,40 @@ public class SQLAuthorRepository : IAuthorRepository
 
     public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
     {
-        throw new NotImplementedException();
+        _context.Authors.AddRange(authors);
+        _context.SaveChanges();
+        
+        var query =
+            "SELECT * FROM (" +
+                "SELECT *, row_number() OVER (ORDER BY \"UserId\") AS rNum " +
+                "FROM \"Authors\"" +
+            ") AS subquery WHERE rNum = @indexToGet";
+        
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@indexToGet", indexToGet);
+        var stopwatch = Stopwatch.StartNew();
+        using (var reader = command.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var author = new Author
+                {
+                    UserId = new EntityId(reader.GetInt32(0).ToString()),
+                    Name = reader.GetString(1),
+                };
+            }
+        }
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Author> authors)
     {
-        var query = "INSERT INTO \"Authors\" (UserId, Name) VALUES (@UserId, @Name)";
+        var query = "INSERT INTO \"Authors\" (Name) VALUES (@Name)";
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
@@ -61,7 +89,6 @@ public class SQLAuthorRepository : IAuthorRepository
         foreach (var author in authors)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", Guid.NewGuid());
             command.Parameters.AddWithValue("@Name", author.Name);
             command.ExecuteNonQuery();
         }

@@ -51,15 +51,48 @@ public class SQLArticleRepository : IArticleRepository
 
     public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
     {
-        throw new NotImplementedException();
+        _context.Articles.AddRange(articles);
+        _context.SaveChanges();
+
+        var query =
+            "SELECT * FROM (" +
+                "SELECT *, row_number() OVER (ORDER BY \"Id\") AS rNum " +
+                "FROM \"Articles\"" +
+            ") AS subquery WHERE rnum = @RowNum";
+        
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        command.Parameters.AddWithValue("@RowNum", indexToGet);
+        using (var reader = command.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var article = new Article
+                {
+                    Id = new EntityId(reader.GetInt32(0).ToString()),
+                    Title = reader.GetString(1),
+                    BodyText = reader.GetString(2),
+                    Updated = reader.GetDateTime(3),
+                    Deleted = !reader.IsDBNull(4) ? reader.GetDateTime(4) : (DateTime?)null,
+                    AuthorId = new EntityId(reader.GetInt16(5).ToString())
+                };
+            }
+        }
+
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Article> articles)
     {
         var query = "INSERT INTO \"Articles\" " +
-                    "(\"Id\", \"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\")" +
+                    "(\"Title\", \"BodyText\", \"Updated\", \"Deleted\")" +
                     " VALUES " +
-                    "(@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
+                    "(@Title, @BodyText, @Updated, @Deleted)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -68,12 +101,10 @@ public class SQLArticleRepository : IArticleRepository
         foreach (var article in articles)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Id", Guid.NewGuid());
             command.Parameters.AddWithValue("@Title", article.Title);
             command.Parameters.AddWithValue("@BodyText", article.BodyText);
             command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
             command.Parameters.AddWithValue("@Deleted", DBNull.Value);
-            command.Parameters.AddWithValue("@AuthorId", Guid.NewGuid());
 
             command.ExecuteNonQuery();
         }
