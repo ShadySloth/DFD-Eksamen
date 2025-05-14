@@ -20,6 +20,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan GetAll(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articleDbModel);
@@ -33,6 +34,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articleDbModel);
@@ -47,6 +49,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan Create(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
         var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
@@ -58,6 +61,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan Update(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         
         var replacementArticles = articles.Select(EntityMapper.ToDbModel).ToList();
@@ -75,6 +79,7 @@ public class MongoArticleRepository : IArticleRepository
 
     public TimeSpan Delete(ICollection<Article> articles)
     {
+        CleanUp();
         Stopwatch stopwatch = new Stopwatch();
         var articlesToDelete = articles.Select(EntityMapper.ToDbModel).ToList();
         _context.Articles.InsertMany(articlesToDelete);
@@ -86,5 +91,10 @@ public class MongoArticleRepository : IArticleRepository
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
+    }
+    
+    private void CleanUp()
+    {
+        _context.Articles.DeleteMany(_ => true);
     }
 }
