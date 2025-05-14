@@ -32,12 +32,15 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
+            
+            var entId = new EntityId(
+                value: indexToGet.ToString());
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
             // Her henter du artiklen fra databasen ved ID
-            var foundArticle = _context.Articles.Find(indexToGet);
+            var foundArticle = _context.Articles.Find(entId);
 
             stopwatch.Stop();
             return stopwatch.Elapsed;
