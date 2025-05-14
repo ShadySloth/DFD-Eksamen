@@ -31,6 +31,19 @@ public class MongoArticleRepository : IArticleRepository
         return elapsedTime;
     }
 
+    public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+    {
+        Stopwatch stopwatch = new Stopwatch();
+        var articleDbModel = articles.Select(EntityMapper.ToDbModel).ToList();
+        _context.Articles.InsertMany(articleDbModel);
+        
+        stopwatch.Start();
+        var foundArticle = _context.Articles.Find(article => article.Id == articleDbModel.ElementAt(indexToGet).Id).ToList();
+        stopwatch.Stop();
+        TimeSpan elapsedTime = stopwatch.Elapsed;
+        return elapsedTime;
+    }
+
     public TimeSpan Create(ICollection<Article> articles)
     {
         Stopwatch stopwatch = new Stopwatch();
