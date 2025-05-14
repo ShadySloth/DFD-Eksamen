@@ -138,6 +138,7 @@ public static class BenchmarkConsole
         Console.WriteLine();
         
         var count = 0;
+        var indexToGet = 0;
         switch (choice)
         {
             case "1":
@@ -152,7 +153,7 @@ public static class BenchmarkConsole
                 break;
             case "3":
                 count = GetNumberInput();
-                var indexToGet = GetIndexInput(count);
+                indexToGet = GetIndexInput(count);
                 time = BenchmarkFetchOne(count, indexToGet,service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
@@ -168,9 +169,11 @@ public static class BenchmarkConsole
                 break;
             case "6":
                 count = GetNumberInput();
+                indexToGet = GetIndexInput(count);
                 Console.WriteLine("\nBenchmarking All...");
                 var totalTime = BenchmarkCreate(count, service);
                 totalTime += BenchmarkFetchAll(count, service);
+                totalTime += BenchmarkFetchOne(count, indexToGet, service);
                 totalTime += BenchmarkUpdate(count, service);
                 totalTime += BenchmarkDelete(count, service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(totalTime)} ms.");
