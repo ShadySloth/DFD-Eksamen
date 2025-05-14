@@ -55,18 +55,23 @@ public class SQLArticleRepository : IArticleRepository
         CleanUp();
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
+        
+        var entId = new EntityId(articles.ElementAt(indexToGet).Id.Value);
 
+        /*
         var query =
             "SELECT * FROM (" +
                 "SELECT *, row_number() OVER (ORDER BY \"Id\") AS rNum " +
                 "FROM \"Articles\"" +
             ") AS subquery WHERE rnum = @RowNum";
+        */
 
+        var query = "SELECT * FROM \"Articles\" WHERE \"Id\" = @Id";
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
         var stopwatch = Stopwatch.StartNew();
-        command.Parameters.AddWithValue("@RowNum", indexToGet);
+        command.Parameters.AddWithValue("@Id", int.Parse(entId.Value));
         using (var reader = command.ExecuteReader())
         {
             while (reader.Read())

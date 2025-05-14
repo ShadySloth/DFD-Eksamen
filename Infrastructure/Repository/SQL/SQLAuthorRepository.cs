@@ -52,17 +52,16 @@ public class SQLAuthorRepository : IAuthorRepository
         CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
+        
+        
+        var entId = new EntityId(authors.ElementAt(indexToGet).UserId.Value);
 
-        var query =
-            "SELECT * FROM (" +
-                "SELECT *, row_number() OVER (ORDER BY \"UserId\") AS rNum " +
-                "FROM \"Authors\"" +
-            ") AS subquery WHERE rNum = @indexToGet";
+        var query = "SELECT * FROM \"Authors\" WHERE \"UserId\" = @Id";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("@indexToGet", indexToGet);
+        command.Parameters.AddWithValue("@Id", int.Parse(entId.Value));
         var stopwatch = Stopwatch.StartNew();
         using (var reader = command.ExecuteReader())
         {
