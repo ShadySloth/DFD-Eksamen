@@ -10,13 +10,20 @@ public static class EntityMapper
     {
         return new ArticleDbModel
         {
-            Id = new ObjectId(article.Id.Value),
+            Id = string.IsNullOrWhiteSpace(article.Id?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(article.Id.Value),
             Title = article.Title,
-            AuthorId = new ObjectId(article.AuthorId.Value),
+            AuthorId = string.IsNullOrWhiteSpace(article.AuthorId?.Value)
+                ? ObjectId.Empty
+                : new ObjectId(article.AuthorId.Value),
             BodyText = article.BodyText,
             Updated = article.Updated,
             Deleted = article.Deleted,
-            GenreIds = article.Genres.Select(genre => new ObjectId(genre.Id.Value)).ToList()
+            GenreIds = article.Genres?
+                .Where(g => !string.IsNullOrWhiteSpace(g?.Id?.Value))
+                .Select(g => new ObjectId(g.Id.Value))
+                .ToList() ?? new List<ObjectId>(),
         };
     }
     
@@ -37,7 +44,9 @@ public static class EntityMapper
     {
         return new GenreDbModel
         {
-            Id = new ObjectId(genre.Id.Value),
+            Id = string.IsNullOrWhiteSpace(genre.Id?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(genre.Id.Value),
             Type = genre.Type,
             ArticleIds = genre.Articles.Select(article => new ObjectId(article.Id.Value)).ToList()
         };
@@ -56,7 +65,9 @@ public static class EntityMapper
     {
         return new AuthorDbModel
         {
-            UserId = new ObjectId(author.UserId.Value),
+            UserId = string.IsNullOrWhiteSpace(author.UserId?.Value)
+                ? ObjectId.GenerateNewId()
+                : new ObjectId(author.UserId.Value),
             Name = author.Name,
         };
     }

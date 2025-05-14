@@ -13,14 +13,9 @@ namespace Database_Benchmarking.Domain.Service.Services
             _repository = repository;
         }
 
-        public TimeSpan GetAllArticles()
+        public TimeSpan GetAllArticles(ICollection<Article> articles)
         {
-            return _repository.GetAll();
-        }
-
-        public TimeSpan GetArticleById(ICollection<EntityId> ids)
-        {
-            return _repository.GetById(ids);
+            return _repository.GetAll(articles);
         }
 
         public TimeSpan CreateArticle(ICollection<Article> articles)
@@ -33,9 +28,9 @@ namespace Database_Benchmarking.Domain.Service.Services
             return _repository.Update(articles);
         }
 
-        public TimeSpan DeleteArticle(ICollection<EntityId> ids)
+        public TimeSpan DeleteArticle(ICollection<Article> articles)
         {
-            return _repository.Delete(ids);
+            return _repository.Delete(articles);
         }
     }
 }

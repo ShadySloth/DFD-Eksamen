@@ -1,6 +1,7 @@
 ﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {
@@ -13,29 +14,17 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             _context = context;
         }
 
-        public TimeSpan GetAll()
+        public TimeSpan GetAll(ICollection<Author> authors)
         {
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var authors = _context.Authors.ToList();
+            var newAuthors = _context.Authors.AsNoTracking().ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere
-        }
-
-        public TimeSpan GetById(ICollection<EntityId> ids)
-        {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
-            // Henter forfattere baseret på id'erne
-            var authors = _context.Authors
-                .Where(a => ids.Contains(a.UserId))
-                .ToList();
-
-            stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente forfattere med de angivne id'er
         }
 
         public TimeSpan Create(ICollection<Author> authors)
@@ -69,22 +58,29 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
-
-        public TimeSpan Delete(ICollection<EntityId> ids)
+        
+        public TimeSpan Delete(ICollection<Author> authors)
         {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
 
+            var ids = authors.Select(a => a.UserId).ToList();
+            
+            
             var authorsToDelete = _context.Authors
                 .Where(a => ids.Contains(a.UserId))
                 .ToList();
+
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
 
             _context.Authors.RemoveRange(authorsToDelete);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette forfatterne
+            return stopwatch.Elapsed;
         }
+
     }
 }

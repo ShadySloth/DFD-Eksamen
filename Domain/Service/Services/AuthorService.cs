@@ -13,15 +13,9 @@ public class AuthorService : IAuthorService
         _authorRepository = authorRepository;
     }
 
-    public TimeSpan GetAll()
+    public TimeSpan GetAll(ICollection<Author> authors)
     {
-        var timeSpan = _authorRepository.GetAll();
-        return timeSpan;
-    }
-
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        var timeSpan = _authorRepository.GetById(ids);
+        var timeSpan = _authorRepository.GetAll(authors);
         return timeSpan;
     }
 
@@ -37,9 +31,9 @@ public class AuthorService : IAuthorService
         return timeSpan;
     }
 
-    public TimeSpan Delete(ICollection<EntityId> ids)
+    public TimeSpan Delete(ICollection<Author> authors)
     { 
-        var timeSpan = _authorRepository.Delete(ids);
+        var timeSpan = _authorRepository.Delete(authors);
         return timeSpan;
     }
 }

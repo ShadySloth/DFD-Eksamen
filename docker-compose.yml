@@ -10,3 +10,12 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - ./db/PostgresData:/var/lib/postgresql/data
+  
+  mongoDb:
+    image: mongo:latest
+    container_name: mongoDb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db/MongoData:/data/db
+    restart: always

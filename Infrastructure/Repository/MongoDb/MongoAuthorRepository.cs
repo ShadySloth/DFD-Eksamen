@@ -15,27 +15,16 @@ public class MongoAuthorRepository : IAuthorRepository
     {
         _context = context;
     }
-    public TimeSpan GetAll()
+    public TimeSpan GetAll(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
+        
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(authorDbModel);
+        
         stopwatch.Start();
-        var authors = _context.Authors.Find(_ => true).ToList();
+        var foundAuthors = _context.Authors.Find(_ => true).ToList();
         stopwatch.Stop();
-        TimeSpan elapsedTime = stopwatch.Elapsed;
-        return elapsedTime;
-    }
-
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            var author = _context.Authors.Find(authorDbModel => 
-                    authorDbModel.UserId == new MongoDB.Bson.ObjectId(id.Value))
-                .FirstOrDefault();
-            stopwatch.Stop();
-        }
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }
@@ -43,8 +32,8 @@ public class MongoAuthorRepository : IAuthorRepository
     public TimeSpan Create(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
         stopwatch.Start();
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
         _context.Authors.InsertMany(authorDbModel);
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
@@ -68,15 +57,18 @@ public class MongoAuthorRepository : IAuthorRepository
         return elapsedTime;
     }
 
-    public TimeSpan Delete(ICollection<EntityId> ids)
+    public TimeSpan Delete(ICollection<Author> authors)
     {
         Stopwatch stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            _context.Authors.DeleteOne(author => author.UserId == new MongoDB.Bson.ObjectId(id.Value));
-            stopwatch.Stop();
-        }
+        
+        var authorDbModel = authors.Select(EntityMapper.ToDbModel).ToList();
+        _context.Authors.InsertMany(authorDbModel);
+        var filter = Builders<AuthorDbModel>.Filter.In(author => author.UserId, authorDbModel.Select(article 
+            => article.UserId));
+        
+        stopwatch.Start();
+        _context.Authors.DeleteMany(filter);
+        stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
     }

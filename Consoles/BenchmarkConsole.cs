@@ -1,8 +1,5 @@
-﻿using Database_Benchmarking.Domain;
-using Database_Benchmarking.Domain.Enums;
-using Database_Benchmarking.Domain.Service;
+﻿using Database_Benchmarking.Domain.Enums;
 using Database_Benchmarking.Domain.Service.Services;
-using Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 namespace Database_Benchmarking.Consoles;
 
@@ -12,34 +9,35 @@ public static class BenchmarkConsole
     {
         var endApp = false;
 
-        Console.WriteLine("Database Benchmarking.\r");
-        Console.WriteLine("----------------------\n");
+        Console.WriteLine("=======================================");
+        Console.WriteLine("         Database Benchmarking         ");
+        Console.WriteLine("=======================================\n");
 
-        Console.WriteLine("Inputting 'q' at any time will quit the app.\n");
+        Console.WriteLine("Input 'q' at any time to quit the app.\n");
 
         while (!endApp)
         {
-            Console.WriteLine("Pick a database to benchmark:");
-            Console.WriteLine("\t1. Relational");
-            Console.WriteLine("\t2. NoSQL");
+            Console.WriteLine("Select a database to benchmark:");
+            Console.WriteLine("  1. Relational");
+            Console.WriteLine("  2. NoSQL");
             Console.WriteLine();
-            Console.Write("Your choice: ");
 
             var choice = GetValidInput(["1", "2"]);
 
             switch (choice)
             {
                 case "1":
-                    BenchmarkRelational();
+                    Benchmark(DatabaseType.Relational);
                     break;
                 case "2":
-                    BenchmarkNoSql();
+                    Benchmark(DatabaseType.NoSql);
                     break;
             }
 
             Console.WriteLine();
-            Console.WriteLine("-------------------\n");
-            Console.WriteLine("Press 'q' to quit the app, or any key to continue...");
+            Console.WriteLine("\n---------------------------------------------");
+            Console.WriteLine("Press 'q' to quit, or any key to continue...");
+            Console.WriteLine("---------------------------------------------\n");
 
             if (Console.ReadKey(true).KeyChar == 'q') endApp = true;
 
@@ -50,12 +48,15 @@ public static class BenchmarkConsole
     private static string GetValidInput(string[] validInputs)
     {
         string input;
+        
+        Console.Write("Your choice: ");
         do
         {
+            
             input = Console.ReadLine()!;
             if (input == "q")
             {
-                Console.WriteLine("Quitting the app.");
+                Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
 
@@ -69,9 +70,7 @@ public static class BenchmarkConsole
 
     private static int GetNumberInput()
     {
-        Console.WriteLine();
-        Console.WriteLine("Enter the number of times to benchmark.");
-        Console.WriteLine();
+        Console.WriteLine("\nEnter the number of records to benchmark.");
         while (true)
         {
             Console.Write("Your choice: ");
@@ -80,7 +79,7 @@ public static class BenchmarkConsole
             
             if (input == "q")
             {
-                Console.WriteLine("Quitting the app.");
+                Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
             
@@ -93,77 +92,99 @@ public static class BenchmarkConsole
         }
     }
 
-    private static void BenchmarkRelational()
+    private static void Benchmark(DatabaseType databaseType)
     {
-        var service = new ServiceController(DatabaseType.Relational);
-        Console.WriteLine();
-        Console.WriteLine("Pick a benchmarking method:");
-        Console.WriteLine("\t1. Insert");
-        Console.WriteLine("\t2. Query");
-        Console.WriteLine("\t3. Update");
-        Console.WriteLine("\t4. Delete");
-        Console.WriteLine("\t5. All");
-        Console.WriteLine();
+        var service = new ServiceController(databaseType);
 
-        Console.Write("Your choice: ");
+        Console.WriteLine("\nPick a benchmarking method:");
+        Console.WriteLine("  1. Insert");
+        Console.WriteLine("  2. Query");
+        Console.WriteLine("  3. Update");
+        Console.WriteLine("  4. Delete");
+        Console.WriteLine("  5. All");
+        Console.WriteLine();
 
         var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+
+        Console.WriteLine();
+        
+        var count = 0;
         switch (choice)
         {
             case "1":
-                Console.WriteLine("Benchmarking Insert...");
-                var count = GetNumberInput();
-                var time = service.CreateArticles(count);
+                count = GetNumberInput();
+                var time = BenchmarkCreate(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "2":
-                Console.WriteLine("Benchmarking Query...");
+                count = GetNumberInput();
+                time = BenchmarkFetch(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "3":
-                Console.WriteLine("Benchmarking Update...");
+                count = GetNumberInput();
+                time = BenchmarkUpdate(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "4":
-                Console.WriteLine("Benchmarking Delete...");
+                count = GetNumberInput();
+                time = BenchmarkDelete(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "5":
-                Console.WriteLine("Benchmarking All...");
+                count = GetNumberInput();
+                Console.WriteLine("\nBenchmarking All...");
+                var totalTime = BenchmarkCreate(count, service);
+                totalTime += BenchmarkFetch(count, service);
+                totalTime += BenchmarkUpdate(count, service);
+                totalTime += BenchmarkDelete(count, service);
+                Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(totalTime)} ms.");
                 break;
         }
     }
 
-    private static void BenchmarkNoSql()
+    private static TimeSpan BenchmarkDelete(int count, ServiceController service)
     {
-        var service = new ServiceController(DatabaseType.NoSql);
-        Console.WriteLine();
-        Console.WriteLine("Pick a benchmarking method:");
-        Console.WriteLine("\t1. Insert");
-        Console.WriteLine("\t2. Query");
-        Console.WriteLine("\t3. Update");
-        Console.WriteLine("\t4. Delete");
-        Console.WriteLine("\t5. All");
-        Console.WriteLine();
+        Console.WriteLine($"\nBenchmarking {count} Deletes...");
+        var time = service.DeleteArticles(count);
+        var time2 = service.DeleteAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
 
-        Console.Write("Your choice: ");
-        var choice = GetValidInput(["1", "2", "3", "4", "5"]);
+    private static TimeSpan BenchmarkUpdate(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Updates...");
+        var time = service.UpdateArticles(count);
+        var time2 = service.UpdateArticles(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
 
-        switch (choice)
-        {
-            case "1":
-                Console.WriteLine("Benchmarking Insert...");
-                var count = GetNumberInput();
-                var time = service.CreateArticles(count);
-                break;
-            case "2":
-                Console.WriteLine("Benchmarking Query...");
-                break;
-            case "3":
-                Console.WriteLine("Benchmarking Update...");
-                break;
-            case "4":
-                Console.WriteLine("Benchmarking Delete...");
-                break;
-            case "5":
-                Console.WriteLine("Benchmarking All...");
-                break;
-        }
+    private static TimeSpan BenchmarkFetch(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Fetches...");
+        var time = service.GetAllArticles(count);
+        var time2 = service.GetAllAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
+
+    private static TimeSpan BenchmarkCreate(int count, ServiceController service)
+    {
+        Console.WriteLine($"\nBenchmarking {count} Inserts...");
+        var time = service.CreateArticles(count);
+        var time2 = service.CreateAuthors(count);
+        Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
+        Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
+        return time + time2;
+    }
+
+    private static int GetRoundedMilliseconds(TimeSpan timeSpan)
+    {
+        return (int)Math.Round(timeSpan.TotalMilliseconds);
     }
 }

@@ -4,9 +4,8 @@ namespace Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 public interface IArticleRepository
 {
-    TimeSpan GetAll();
-    TimeSpan GetById(ICollection<EntityId> ids);
+    TimeSpan GetAll(ICollection<Article> articles);
     TimeSpan Create(ICollection<Article> articles);
     TimeSpan Update(ICollection<Article> articles);
-    TimeSpan Delete(ICollection<EntityId> ids);
+    TimeSpan Delete(ICollection<Article> articles);
 }

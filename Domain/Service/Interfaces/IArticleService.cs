@@ -4,9 +4,8 @@ namespace Database_Benchmarking.Domain.Service.Interfaces;
 
 public interface IArticleService
 {
-    TimeSpan GetAllArticles();
-    TimeSpan GetArticleById(ICollection<EntityId> ids);
+    TimeSpan GetAllArticles(ICollection<Article> articles);
     TimeSpan CreateArticle(ICollection<Article> articles);
     TimeSpan UpdateArticle(ICollection<Article> articles);
-    TimeSpan DeleteArticle(ICollection<EntityId> ids);
+    TimeSpan DeleteArticle(ICollection<Article> articles);
 }

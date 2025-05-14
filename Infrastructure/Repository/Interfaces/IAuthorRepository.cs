@@ -4,9 +4,8 @@ namespace Database_Benchmarking.Infrastructure.Repository.Interfaces;
 
 public interface IAuthorRepository
 {
-    TimeSpan GetAll();
-    TimeSpan GetById(ICollection<EntityId> ids);
+    TimeSpan GetAll(ICollection<Author> authors);
     TimeSpan Create(ICollection<Author> authors);
     TimeSpan Update(ICollection<Author> authors);
-    TimeSpan Delete(ICollection<EntityId> ids);
+    TimeSpan Delete(ICollection<Author> authors);
 }

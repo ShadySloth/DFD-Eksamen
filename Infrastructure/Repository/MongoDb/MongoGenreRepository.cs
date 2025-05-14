@@ -24,20 +24,6 @@ public class MongoGenreRepository : IGenreRepository
         return elapsedTime;
     }
 
-    public TimeSpan GetById(ICollection<EntityId> ids)
-    {
-        var stopwatch = new Stopwatch();
-        foreach (var id in ids)
-        {
-            stopwatch.Start();
-            var genre = _context.Genres.Find(genreDbModel => genreDbModel.Id == new MongoDB.Bson.ObjectId(id.Value))
-                .FirstOrDefault();
-            stopwatch.Stop();
-        }
-        var elapsedTime = stopwatch.Elapsed;
-        return elapsedTime;
-    }
-
     public TimeSpan Create(ICollection<Genre> genres)
     {
         var stopwatch = new Stopwatch();

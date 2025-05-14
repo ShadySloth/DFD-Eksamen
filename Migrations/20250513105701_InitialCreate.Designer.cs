@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database_Benchmarking.Migrations
 {
     [DbContext(typeof(PostgresDbContext))]
-    [Migration("20250513063205_InitialCreate")]
+    [Migration("20250513105701_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -99,6 +99,33 @@ namespace Database_Benchmarking.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "11111111-1111-1111-1111-111111111111",
+                            Type = "Action"
+                        },
+                        new
+                        {
+                            Id = "22222222-2222-2222-2222-222222222222",
+                            Type = "Comedy"
+                        },
+                        new
+                        {
+                            Id = "33333333-3333-3333-3333-333333333333",
+                            Type = "Drama"
+                        },
+                        new
+                        {
+                            Id = "44444444-4444-4444-4444-444444444444",
+                            Type = "Horror"
+                        },
+                        new
+                        {
+                            Id = "55555555-5555-5555-5555-555555555555",
+                            Type = "Fantasy"
+                        });
                 });
 
             modelBuilder.Entity("ArticleGenre", b =>

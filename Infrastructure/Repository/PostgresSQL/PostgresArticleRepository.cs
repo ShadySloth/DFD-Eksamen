@@ -1,6 +1,7 @@
 using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
     public class PostgresArticleRepository : IArticleRepository
@@ -12,28 +13,17 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             _context = context;
         }
 
-        public TimeSpan GetAll()
+        public TimeSpan GetAll(ICollection<Article> articles)
         {
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
-            var articles = _context.Articles.ToList();
+            var newArticles = _context.Articles.AsNoTracking().ToList();
 
             stopwatch.Stop();
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
-        }
-
-        public TimeSpan GetById(ICollection<EntityId> ids)
-        {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
-            var articles = _context.Articles
-                .Where(a => ids.Contains(a.Id))
-                .ToList();
-
-            stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente artiklerne med de angivne id'er
         }
 
         public TimeSpan Create(ICollection<Article> articles)
@@ -70,20 +60,26 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
 
 
-        public TimeSpan Delete(ICollection<EntityId> ids)
+        public TimeSpan Delete(ICollection<Article> articles)
         {
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+
+            var ids = articles.Select(a => a.Id).ToList();
 
             var articlesToDelete = _context.Articles
                 .Where(a => ids.Contains(a.Id))
                 .ToList();
 
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             _context.Articles.RemoveRange(articlesToDelete);
             _context.SaveChanges();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at slette artiklerne
+            return stopwatch.Elapsed;
         }
+
     }
 
