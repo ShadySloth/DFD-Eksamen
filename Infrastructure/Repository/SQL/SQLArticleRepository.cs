@@ -45,12 +45,13 @@ public class SQLArticleRepository : IArticleRepository
         }
         connection.Close();
         stopwatch.Stop();
+        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Article> articles)
     {
-        var query = "INSERT INTO \"Articles\" (Id, Title, BodyText, Updated, Deleted, AuthorId) VALUES (@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
+        var query = "INSERT INTO \"Articles\" (\"Id\", \"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\") VALUES (@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -64,21 +65,69 @@ public class SQLArticleRepository : IArticleRepository
             command.Parameters.AddWithValue("@BodyText", article.BodyText);
             command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
             command.Parameters.AddWithValue("@Deleted", DBNull.Value);
-            command.Parameters.AddWithValue("@AuthorId", article.AuthorId.Value);
+            command.Parameters.AddWithValue("@AuthorId", Guid.NewGuid());
 
             command.ExecuteNonQuery();
         }
         stopwatch.Stop();
+        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Update(ICollection<Article> articles)
     {
-        throw new NotImplementedException();
+        _context.Articles.AddRange(articles);
+        _context.SaveChanges();
+        
+        var query = "UPDATE \"Articles\" SET \"Title\" = @Title, \"BodyText\" = @BodyText, \"Updated\" = @Updated WHERE \"Id\" = @Id";
+        
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        foreach (var article in articles)
+        {
+            command.Parameters.Clear();
+            command.Parameters.AddWithValue("@Id", article.Id.Value);
+            command.Parameters.AddWithValue("@Title", article.Title);
+            command.Parameters.AddWithValue("@BodyText", article.BodyText);
+            command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
+
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
     }
 
     public TimeSpan Delete(ICollection<Article> articles)
     {
-        throw new NotImplementedException();
+        _context.Articles.AddRange(articles);
+        _context.SaveChanges();
+        
+        var query = "DELETE FROM \"Articles\" WHERE \"Id\" = @Id";
+        
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        foreach (var article in articles)
+        {
+            command.Parameters.Clear();
+            command.Parameters.AddWithValue("@Id", article.Id.Value);
+
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
+    }
+
+    private void CleanUp()
+    {
+        _context.Articles.RemoveRange(_context.Articles);
+        _context.SaveChanges();
     }
 }

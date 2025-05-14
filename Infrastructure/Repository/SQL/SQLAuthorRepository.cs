@@ -42,21 +42,77 @@ public class SQLAuthorRepository : IAuthorRepository
         }
         connection.Close();
         stopwatch.Stop();
+        CleanUp();
         return stopwatch.Elapsed;
     }
 
     public TimeSpan Create(ICollection<Author> authors)
     {
-        throw new NotImplementedException();
+        var query = "INSERT INTO \"Authors\" (UserId, Name) VALUES (@UserId, @Name)";
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        foreach (var author in authors)
+        {
+            command.Parameters.Clear();
+            command.Parameters.AddWithValue("@UserId", Guid.NewGuid());
+            command.Parameters.AddWithValue("@Name", author.Name);
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
     }
 
     public TimeSpan Update(ICollection<Author> authors)
     {
-        throw new NotImplementedException();
+        _context.Authors.AddRange(authors);
+        _context.SaveChanges();
+        
+        var query = "UPDATE \"Authors\" SET \"Name\" = @Name WHERE \"UserId\" = @UserId";
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        foreach (var author in authors)
+        {
+            command.Parameters.Clear();
+            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
+            command.Parameters.AddWithValue("@Name", author.Name);
+            command.ExecuteNonQuery();
+        }
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
     }
 
     public TimeSpan Delete(ICollection<Author> authors)
     {
-        throw new NotImplementedException();
+        _context.Authors.AddRange(authors);
+        _context.SaveChanges();
+        
+        var query = "DELETE FROM \"Authors\" WHERE \"UserId\" = @UserId";
+        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+        connection.Open();
+        using var command = new Npgsql.NpgsqlCommand(query, connection);
+        var stopwatch = Stopwatch.StartNew();
+        foreach (var author in authors)
+        {
+            command.Parameters.Clear();
+            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
+            command.ExecuteNonQuery();
+        }
+        connection.Close();
+        stopwatch.Stop();
+        CleanUp();
+        return stopwatch.Elapsed;
+    }
+
+    private void CleanUp()
+    {
+        _context.Authors.RemoveRange(_context.Authors);
+        _context.SaveChanges();
     }
 }
