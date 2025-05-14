@@ -31,13 +31,12 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
         public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
         {
             ClearAuthors();
-            var index = indexToGet.ToString();
-            
+
             _context.Authors.AddRange(authors);
             _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            var foundArticle = _context.Authors.Find(index);
+            var foundArticle = _context.Authors.Find(indexToGet);
 
             stopwatch.Stop();
             return stopwatch.Elapsed;
