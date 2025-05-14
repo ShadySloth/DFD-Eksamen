@@ -18,15 +18,19 @@ public static class BenchmarkConsole
         while (!endApp)
         {
             Console.WriteLine("Select a database to benchmark:");
+            Console.WriteLine("  0. Run all benchmarks");
             Console.WriteLine("  1. Relational ORM");
             Console.WriteLine("  2. Relational Rawdogging SQL");
             Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
-            var choice = GetValidInput(["1", "2", "3"]);
+            var choice = GetValidInput(["0","1", "2", "3"]);
 
             switch (choice)
             {
+                case "0":
+                    BenchmarkAll();
+                    break;
                 case "1":
                     Benchmark(DatabaseType.Relational);
                     break;
@@ -119,6 +123,8 @@ public static class BenchmarkConsole
             Console.WriteLine("Invalid input. Please enter a number.");
         }
     }
+    
+    
 
     private static void Benchmark(DatabaseType databaseType)
     {
