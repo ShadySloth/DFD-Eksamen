@@ -10,6 +10,7 @@ public class ServiceController : IServiceController
     private readonly IArticleService _articleService;
     private readonly IAuthorService _authorService;
     private readonly MockDataService _mockDataService;
+    private string _databaseType = "";
     
     public ServiceController(DatabaseType databaseType)
     {
@@ -21,15 +22,18 @@ public class ServiceController : IServiceController
                 var postgresContextFactory = new PostgresContextFactory();
                 var postgresDbContext = postgresContextFactory.CreateDbContext([]);
                 repositoryFactory = new RepositoryFactory(postgresDbContext);
+                _databaseType = "EFCorePG";
                 break;
             case DatabaseType.NoSql:
                 var mongoDbContext = new MongoDbContext();
                 repositoryFactory = new RepositoryFactory(mongoDbContext);
+                _databaseType = "MongoDb";
                 break;
             case DatabaseType.RelationalRawdogging:
                 var sqlContextFactory = new PostgresContextFactory();
                 var sqlDbContext = sqlContextFactory.CreateDbContext([]);
                 repositoryFactory = new RepositoryFactory(sqlDbContext);
+                _databaseType = "NpgSql";
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null);
@@ -98,5 +102,10 @@ public class ServiceController : IServiceController
     {
         var authors = _mockDataService.GenerateMockAuthors(count);
         return _authorService.Update(authors);
+    }
+
+    public override string ToString()
+    {
+        return _databaseType;
     }
 }

@@ -116,7 +116,7 @@ public class SQLAuthorRepository : IAuthorRepository
         foreach (var author in authors)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
+            command.Parameters.AddWithValue("@UserId", int.Parse(author.UserId.Value));
             command.Parameters.AddWithValue("@Name", author.AuthorName);
 
             command.ExecuteNonQuery();
@@ -140,7 +140,7 @@ public class SQLAuthorRepository : IAuthorRepository
         foreach (var author in authors)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
+            command.Parameters.AddWithValue("@UserId", int.Parse(author.UserId.Value));
             command.ExecuteNonQuery();
         }
         connection.Close();

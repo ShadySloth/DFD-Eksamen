@@ -133,7 +133,7 @@ public class SQLArticleRepository : IArticleRepository
         foreach (var article in articles)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Id", article.Id.Value);
+            command.Parameters.AddWithValue("@Id", int.Parse(article.Id.Value));
             command.Parameters.AddWithValue("@Title", article.Title);
             command.Parameters.AddWithValue("@BodyText", article.BodyText);
             command.Parameters.AddWithValue("@Updated", DateTime.UtcNow);
@@ -161,7 +161,7 @@ public class SQLArticleRepository : IArticleRepository
         foreach (var article in articles)
         {
             command.Parameters.Clear();
-            command.Parameters.AddWithValue("@Id", article.Id.Value);
+            command.Parameters.AddWithValue("@Id", int.Parse(article.Id.Value));
 
             command.ExecuteNonQuery();
         }
