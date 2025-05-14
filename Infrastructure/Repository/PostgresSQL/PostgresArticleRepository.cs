@@ -26,6 +26,22 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle artikler
         }
 
+        public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
+        {
+            _context.Articles.AddRange(articles);
+            _context.SaveChanges();
+            
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            // Her henter du artiklen fra databasen ved ID
+            var foundArticle = _context.Articles.Find(indexToGet);
+
+            stopwatch.Stop();
+            return stopwatch.Elapsed;
+        }
+
+
         public TimeSpan Create(ICollection<Article> articles)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
