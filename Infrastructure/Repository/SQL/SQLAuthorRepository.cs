@@ -19,7 +19,7 @@ public class SQLAuthorRepository : IAuthorRepository
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
         
-        var query = "SELECT * FROM \"Authors\"";
+        var query = $"SELECT * FROM \"Authors\" LIMIT {authors.Count}";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();

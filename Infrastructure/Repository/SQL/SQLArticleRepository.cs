@@ -19,7 +19,7 @@ public class SQLArticleRepository : IArticleRepository
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
         
-        var query = "SELECT * FROM \"Articles\"";
+        var query = $"SELECT * FROM \"Articles\" LIMIT {articles.Count}";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -51,7 +51,10 @@ public class SQLArticleRepository : IArticleRepository
 
     public TimeSpan Create(ICollection<Article> articles)
     {
-        var query = "INSERT INTO \"Articles\" (\"Id\", \"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\") VALUES (@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
+        var query = "INSERT INTO \"Articles\" " +
+                    "(\"Id\", \"Title\", \"BodyText\", \"Updated\", \"Deleted\", \"AuthorUserId\")" +
+                    " VALUES " +
+                    "(@Id, @Title, @BodyText, @Updated, @Deleted, @AuthorId)";
         
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
