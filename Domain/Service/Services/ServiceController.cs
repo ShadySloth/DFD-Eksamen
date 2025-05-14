@@ -17,7 +17,7 @@ public class ServiceController : IServiceController
         
         switch (databaseType)
         {
-            case DatabaseType.EfCore:
+            case DatabaseType.Relational:
                 var postgresContextFactory = new PostgresContextFactory();
                 var postgresDbContext = postgresContextFactory.CreateDbContext([]);
                 repositoryFactory = new RepositoryFactory(postgresDbContext);
@@ -26,7 +26,7 @@ public class ServiceController : IServiceController
                 var mongoDbContext = new MongoDbContext();
                 repositoryFactory = new RepositoryFactory(mongoDbContext);
                 break;
-            case DatabaseType.Sql:
+            case DatabaseType.RelationalRawdogging:
                 var sqlContextFactory = new PostgresContextFactory();
                 var sqlDbContext = sqlContextFactory.CreateDbContext([]);
                 repositoryFactory = new RepositoryFactory(sqlDbContext);

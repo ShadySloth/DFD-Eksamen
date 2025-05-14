@@ -26,8 +26,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.EfCore => new PostgresArticleRepository(_postgresDbContext!),
-            DatabaseType.Sql => new SQLArticleRepository(_postgresDbContext!),
+            DatabaseType.Relational => new PostgresArticleRepository(_postgresDbContext!),
+            DatabaseType.RelationalRawdogging => new SQLArticleRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoArticleRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -37,8 +37,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.EfCore => new PostgresAuthorRepository(_postgresDbContext!),
-            DatabaseType.Sql => new SQLAuthorRepository(_postgresDbContext!),
+            DatabaseType.Relational => new PostgresAuthorRepository(_postgresDbContext!),
+            DatabaseType.RelationalRawdogging => new SQLAuthorRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoAuthorRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
@@ -48,8 +48,8 @@ public class RepositoryFactory
     {
         return databaseType switch
         {
-            DatabaseType.EfCore => new PostgresGenreRepository(_postgresDbContext!),
-            DatabaseType.Sql => new SQLGenreRepository(_postgresDbContext!),
+            DatabaseType.Relational => new PostgresGenreRepository(_postgresDbContext!),
+            DatabaseType.RelationalRawdogging => new SQLGenreRepository(_postgresDbContext!),
             DatabaseType.NoSql => new MongoGenreRepository(_mongoDbContext!),
             _ => throw new ArgumentOutOfRangeException(nameof(databaseType), databaseType, null)
         };
