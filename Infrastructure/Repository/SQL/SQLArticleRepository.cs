@@ -19,7 +19,7 @@ public class SQLArticleRepository : IArticleRepository
         _context.Articles.AddRange(articles);
         _context.SaveChanges();
         
-        var query = "SELECT * FROM Articles";
+        var query = "SELECT * FROM \"Articles\"";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -37,12 +37,13 @@ public class SQLArticleRepository : IArticleRepository
                     Title = reader.GetString(1),
                     BodyText = reader.GetString(2),
                     Updated = reader.GetDateTime(3),
-                    Deleted = reader.GetDateTime(4),
+                    Deleted = !reader.IsDBNull(4) ? reader.GetDateTime(4) : (DateTime?)null,
                     AuthorId = new EntityId(reader.GetString(5))
                 };
                 articles.Add(article);
             }
         }
+        connection.Close();
         stopwatch.Stop();
         return stopwatch.Elapsed;
     }
