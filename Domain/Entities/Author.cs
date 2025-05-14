@@ -10,5 +10,5 @@ public class Author
     public EntityId UserId { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string AuthorName { get; set; }
 }

@@ -1,7 +1,6 @@
 ﻿using Database_Benchmarking.Domain.Entities;
 using Database_Benchmarking.Infrastructure.Context;
 using Database_Benchmarking.Infrastructure.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 {
@@ -65,7 +64,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 
             foreach (var author in authors)
             {
-                author.Name += " - updated";
+                author.AuthorName += " - updated";
             }
 
             var stopwatch = new System.Diagnostics.Stopwatch();

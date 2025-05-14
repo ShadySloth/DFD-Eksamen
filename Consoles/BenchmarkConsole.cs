@@ -19,7 +19,7 @@ public static class BenchmarkConsole
         {
             Console.WriteLine("Select a database to benchmark:");
             Console.WriteLine("  1. Relational ORM");
-            Console.WriteLine("  2. Relational Rawdogging SQL");
+            Console.WriteLine("  2. Relational SQL");
             Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
@@ -195,7 +195,7 @@ public static class BenchmarkConsole
     {
         Console.WriteLine($"\nBenchmarking {count} Updates...");
         var time = service.UpdateArticles(count);
-        var time2 = service.UpdateArticles(count);
+        var time2 = service.UpdateAuthors(count);
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;
