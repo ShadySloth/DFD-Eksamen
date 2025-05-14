@@ -38,7 +38,8 @@ public class MongoAuthorRepository : IAuthorRepository
         _context.Authors.InsertMany(authorDbModel);
         
         stopwatch.Start();
-        var foundAuthor = _context.Authors.Find(author => author.UserId == authorDbModel.ElementAt(indexToGet).UserId).ToList();
+        var foundAuthor = _context.Authors.Find(author => author.UserId == authorDbModel.
+            ElementAt(indexToGet).UserId).ToList();
         stopwatch.Stop();
         TimeSpan elapsedTime = stopwatch.Elapsed;
         return elapsedTime;
