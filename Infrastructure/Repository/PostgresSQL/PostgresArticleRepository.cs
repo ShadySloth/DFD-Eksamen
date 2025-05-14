@@ -15,6 +15,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan GetAll(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -28,6 +29,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan GetById(ICollection<Article> articles, int indexToGet)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
             
@@ -44,6 +46,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Create(ICollection<Article> articles)
         {
+            ClearArticles();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -56,6 +59,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Update(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
 
@@ -78,6 +82,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
 
         public TimeSpan Delete(ICollection<Article> articles)
         {
+            ClearArticles();
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
 
@@ -96,6 +101,12 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             stopwatch.Stop();
             return stopwatch.Elapsed;
         }
-
+        
+        private void ClearArticles()
+        {
+            _context.Articles.RemoveRange(_context.Articles);
+            _context.SaveChanges();
+        } 
     }
 
+    

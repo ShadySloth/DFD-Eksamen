@@ -16,6 +16,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 
         public TimeSpan GetAll(ICollection<Author> authors)
         {
+            ClearAuthors();
             _context.Authors.AddRange(authors);
             _context.SaveChanges();
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -24,11 +25,25 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
             var newAuthors = _context.Authors.ToList();
 
             stopwatch.Stop();
-            return stopwatch.Elapsed; // Returnerer den tid, det tog at hente alle forfattere
+            return stopwatch.Elapsed;
+        }
+
+        public TimeSpan GetById(ICollection<Author> authors, int indexToGet)
+        {
+            ClearAuthors();
+            _context.Authors.AddRange(authors);
+            _context.SaveChanges();
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            var foundArticle = _context.Authors.Find(indexToGet);
+
+            stopwatch.Stop();
+            return stopwatch.Elapsed;
         }
 
         public TimeSpan Create(ICollection<Author> authors)
         {
+            ClearAuthors();
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -41,6 +56,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 
         public TimeSpan Update(ICollection<Author> authors)
         {
+            ClearAuthors();
             _context.Authors.AddRange(authors);
             _context.SaveChanges();
 
@@ -61,6 +77,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
         
         public TimeSpan Delete(ICollection<Author> authors)
         {
+            ClearAuthors();
             _context.Authors.AddRange(authors);
             _context.SaveChanges();
 
@@ -80,6 +97,12 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL
 
             stopwatch.Stop();
             return stopwatch.Elapsed;
+        }
+        
+        private void ClearAuthors()
+        {
+            _context.Authors.RemoveRange(_context.Authors);
+            _context.SaveChanges();
         }
 
     }
