@@ -17,10 +17,6 @@
       <PackageReference Include="MongoDB.Bson" Version="3.4.0" />
       <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-      <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
-      <PackageReference Include="OxyPlot.SkiaSharp" Version="2.2.0" />
-      <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
-      <PackageReference Include="ScottPlot" Version="4.1.10" />
     </ItemGroup>
 
 </Project>
