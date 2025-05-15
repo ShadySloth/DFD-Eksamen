@@ -176,7 +176,7 @@ public static class BenchmarkConsole
         var resultSetDeleteAuthors = new List<ResultSet>();
 
 
-        List<int> counts = [1000,10000,100000];
+        List<int> counts = [10,100,1100];
         foreach (var count in counts)
         {
             var indexToGet = count-2;
@@ -241,6 +241,23 @@ public static class BenchmarkConsole
                         break;
                 }
             }
+            
+                                                
+            var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..\"));
+            var outPutDirectory = Path.Combine(projectRoot, "results");
+            Directory.CreateDirectory(outPutDirectory);
+
+            DiagramGenerator.GenerateDiagram(resultSetCreateArticles, outPutDirectory, "Create-Article");
+            DiagramGenerator.GenerateDiagram(resultSetCreateAuthors, outPutDirectory, "Create-Author");
+            DiagramGenerator.GenerateDiagram(resultSetFetchAllArticles, outPutDirectory, "Fetch-Article");
+            DiagramGenerator.GenerateDiagram(resultSetFetchAllAuthors, outPutDirectory, "Fetch-Author");
+            DiagramGenerator.GenerateDiagram(resultSetFetchOneArticle, outPutDirectory, "Fetch-one-Article");
+            DiagramGenerator.GenerateDiagram(resultSetFetchOneAuthor, outPutDirectory, "Fetch-one-Author");
+            DiagramGenerator.GenerateDiagram(resultSetUpdateArticles, outPutDirectory, "Update-Article");
+            DiagramGenerator.GenerateDiagram(resultSetUpdateAuthors, outPutDirectory, "Update-Author");
+            DiagramGenerator.GenerateDiagram(resultSetDeleteArticles, outPutDirectory, "Delete-Article");
+            DiagramGenerator.GenerateDiagram(resultSetDeleteAuthors, outPutDirectory, "Delete-Author");
+
             
         }
         
