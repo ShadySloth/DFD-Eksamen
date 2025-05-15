@@ -176,7 +176,7 @@ public static class BenchmarkConsole
         var resultSetDeleteAuthors = new List<ResultSet>();
 
 
-        List<int> counts = [10,100,1100];
+        List<int> counts = [1000,10000,100000];
         foreach (var count in counts)
         {
             var indexToGet = count-2;
