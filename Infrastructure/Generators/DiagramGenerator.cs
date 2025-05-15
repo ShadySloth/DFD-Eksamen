@@ -23,9 +23,9 @@ namespace Database_Benchmarking.Infrastructure.Generators
                 .OrderBy(g => g.Key)
                 .ToList();
 
-            double barWidth = 0.012;
+            double barWidth = 0.055;
             double innerSpacing = 0.01;
-            double groupSpacing = 0.02;
+            double groupSpacing = 0.2;
 
             var series = new List<SeriesData>
             {
@@ -39,40 +39,34 @@ namespace Database_Benchmarking.Infrastructure.Generators
 
             foreach (var group in batchGroups)
             {
-                int countBefore = series.Sum(s => s.Positions.Count + s.AvgPositions.Count);
+                double groupX = Math.Log10(group.Key);
+
+                double groupStartX = groupX - ((series.Count * 2 * (barWidth + innerSpacing)) / 2.0);
+
+                int barIndex = 0;
 
                 foreach (var s in series)
                 {
-                    // Regular entries
                     foreach (var r in group.Where(r => !r.IsAverage && s.Selector(r) > 0))
                     {
                         s.Values.Add(s.Selector(r) / 1000.0);
-                        s.Positions.Add(currentX);
-                        currentX += barWidth + innerSpacing;
+                        s.Positions.Add(groupStartX + barIndex * (barWidth + innerSpacing));
+                        barIndex++;
                     }
 
-                    // Average entry
                     var avg = group.FirstOrDefault(r => r.IsAverage && s.Selector(r) > 0);
                     if (avg != null)
                     {
                         s.AvgValues.Add(s.Selector(avg) / 1000.0);
-                        s.AvgPositions.Add(currentX);
-                        currentX += barWidth + innerSpacing;
+                        s.AvgPositions.Add(groupStartX + barIndex * (barWidth + innerSpacing));
+                        barIndex++;
                     }
                 }
 
-                int countAfter = series.Sum(s => s.Positions.Count + s.AvgPositions.Count);
-
-                double groupMid = series
-                    .SelectMany(s => s.Positions.Concat(s.AvgPositions))
-                    .Skip(countBefore)
-                    .Take(countAfter - countBefore)
-                    .DefaultIfEmpty(currentX)
-                    .Average();
-
-                xTicks.Add((groupMid, group.Key.ToString()));
-                currentX += groupSpacing;
+                double groupCenterX = groupStartX + ((barIndex - 1) * (barWidth + innerSpacing)) / 2.0;
+                xTicks.Add((groupCenterX, group.Key.ToString()));
             }
+
 
             // Legg til plott
             foreach (var s in series)
