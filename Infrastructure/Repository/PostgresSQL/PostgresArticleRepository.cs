@@ -32,8 +32,7 @@ namespace Database_Benchmarking.Infrastructure.Repository.PostgresSQL;
             _context.Articles.AddRange(articles);
             _context.SaveChanges();
             
-            var entId = new EntityId(
-                value: indexToGet.ToString());
+            var entId = new EntityId(articles.ElementAt(indexToGet).Id.Value);
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();

@@ -20,7 +20,7 @@ public class SQLAuthorRepository : IAuthorRepository
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
 
-        var query = $"SELECT * FROM \"Authors\" LIMIT {authors.Count}";
+        var query = $"SELECT * FROM \"Authors\"";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
@@ -52,17 +52,16 @@ public class SQLAuthorRepository : IAuthorRepository
         CleanUp();
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
+        
+        
+        var entId = new EntityId(authors.ElementAt(indexToGet).UserId.Value);
 
-        var query =
-            "SELECT * FROM (" +
-                "SELECT *, row_number() OVER (ORDER BY \"UserId\") AS rNum " +
-                "FROM \"Authors\"" +
-            ") AS subquery WHERE rNum = @indexToGet";
+        var query = "SELECT * FROM \"Authors\" WHERE \"UserId\" = @Id";
 
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("@indexToGet", indexToGet);
+        command.Parameters.AddWithValue("@Id", int.Parse(entId.Value));
         var stopwatch = Stopwatch.StartNew();
         using (var reader = command.ExecuteReader())
         {
@@ -104,26 +103,35 @@ public class SQLAuthorRepository : IAuthorRepository
 
     public TimeSpan Update(ICollection<Author> authors)
     {
-        CleanUp();
-        _context.Authors.AddRange(authors);
-        _context.SaveChanges();
+       CleanUp();
 
-        var query = "UPDATE \"Authors\" SET \"AuthorName\" = @Name WHERE \"UserId\" = @UserId";
-        using var connection = new Npgsql.NpgsqlConnection(_connectionString);
-        connection.Open();
-        using var command = new Npgsql.NpgsqlCommand(query, connection);
-        var stopwatch = Stopwatch.StartNew();
-        foreach (var author in authors)
-        {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
-            command.Parameters.AddWithValue("@Name", author.AuthorName);
+       _context.Authors.AddRange(authors);
+       _context.SaveChanges();
 
-            command.ExecuteNonQuery();
-        }
+       var userIds = authors.Select(a => int.Parse(a.UserId.Value)).ToArray();
+       var names = authors.Select(a => a.AuthorName).ToArray();
 
-        stopwatch.Stop();
-        return stopwatch.Elapsed;
+       var query = @"
+           UPDATE ""Authors"" a
+           SET ""AuthorName"" = data.name
+           FROM (
+               SELECT UNNEST(@userIds) AS userId,
+                      UNNEST(@names) AS name
+           ) AS data
+           WHERE a.""UserId"" = data.userId;
+       ";
+
+       using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+       connection.Open();
+       using var command = new Npgsql.NpgsqlCommand(query, connection);
+       command.Parameters.AddWithValue("@userIds", userIds);
+       command.Parameters.AddWithValue("@names", names);
+
+       var stopwatch = Stopwatch.StartNew();
+       command.ExecuteNonQuery();
+       stopwatch.Stop();
+
+       return stopwatch.Elapsed;
     }
 
     public TimeSpan Delete(ICollection<Author> authors)
@@ -132,20 +140,19 @@ public class SQLAuthorRepository : IAuthorRepository
         _context.Authors.AddRange(authors);
         _context.SaveChanges();
         
-        var query = "DELETE FROM \"Authors\" WHERE \"UserId\" = @UserId";
+        var UserIds = authors.Select(a => int.Parse(a.UserId.Value)).ToArray();
+        var query = "DELETE FROM \"Authors\" WHERE \"UserId\" = ANY(@UserIds)";
+        
         using var connection = new Npgsql.NpgsqlConnection(_connectionString);
         connection.Open();
         using var command = new Npgsql.NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@UserIds", UserIds);
+        
         var stopwatch = Stopwatch.StartNew();
-        foreach (var author in authors)
-        {
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@UserId", author.UserId.ToString());
-            command.ExecuteNonQuery();
-        }
-        connection.Close();
+        command.ExecuteNonQuery();
         stopwatch.Stop();
         
+        connection.Close();
         return stopwatch.Elapsed;
     }
 
