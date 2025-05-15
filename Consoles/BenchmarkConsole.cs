@@ -146,34 +146,31 @@ public static class BenchmarkConsole
         var resultSetUpdateAuthors = new List<ResultSet>();
         var resultSetDeleteArticles = new List<ResultSet>();
         var resultSetDeleteAuthors = new List<ResultSet>();
+        
         for (int indexTest = 0; indexTest < 5; indexTest++)
         {
             switch (indexTest)
             {
                 case 0:
                     Console.WriteLine($"\nBenchmarking {count} insert articles...");
-                    resultSetCreateArticles = BenchmarkTestInsertArticles(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetCreateArticles);
+                    resultSetCreateArticles = BenchmarkTestInsertArticles(count, resultSetCreateArticles);
                     break;
                 case 1:
                     Console.WriteLine($"\nBenchmarking {count} query all articles...");
-                    resultSetFetchAllArticles = BenchmarkTestFetchAllArticles(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetFetchAllArticles);
+                    resultSetFetchAllArticles = BenchmarkTestFetchAllArticles(count, resultSetFetchAllArticles);
                     break;
                 case 2:
                     Console.WriteLine($"\nBenchmarking {count} query one article...");
                     resultSetFetchOneArticle = BenchmarkTestFetchOneArticle(count, indexToGet, 
-                        relationalOrmService, relationalRawdoggingService, noSqlService, resultSetFetchOneArticle);
+                        resultSetFetchOneArticle);
                     break;
                 case 3:
                     Console.WriteLine($"\nBenchmarking {count} update articles...");
-                    resultSetUpdateArticles = BenchmarkTestUpdateArticles(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetUpdateArticles);
+                    resultSetUpdateArticles = BenchmarkTestUpdateArticles(count, resultSetUpdateArticles);
                     break;
                 case 4:
                     Console.WriteLine($"\nBenchmarking {count} delete articles...");
-                    resultSetDeleteArticles = BenchmarkTestDeleteArticles(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetDeleteArticles);
+                    resultSetDeleteArticles = BenchmarkTestDeleteArticles(count, resultSetDeleteArticles);
                     break;
             }
         }
@@ -186,38 +183,35 @@ public static class BenchmarkConsole
             {
                 case 0:
                     Console.WriteLine($"\nBenchmarking {count} insert authors...");
-                    resultSetCreateAuthors = BenchmarkTestInsertAuthors(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetCreateAuthors);
+                    resultSetCreateAuthors = BenchmarkTestInsertAuthors(count, resultSetCreateAuthors);
                     break;
                 case 1:
                     Console.WriteLine($"\nBenchmarking {count} query all authors...");
-                    resultSetFetchAllAuthors = BenchmarkTestFetchAllAuthors(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetFetchAllAuthors);
+                    resultSetFetchAllAuthors = BenchmarkTestFetchAllAuthors(count, resultSetFetchAllAuthors);
                     break;
                 case 2:
                     Console.WriteLine($"\nBenchmarking {count} query one author...");
-                    resultSetFetchOneAuthor = BenchmarkTestFetchOneAuthor(count, indexToGet, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetFetchOneAuthor);
+                    resultSetFetchOneAuthor = BenchmarkTestFetchOneAuthor(count, indexToGet, resultSetFetchOneAuthor);
                     break;
                 case 3:
                     Console.WriteLine($"\nBenchmarking {count} update authors...");
-                    resultSetUpdateAuthors = BenchmarkTestUpdateAuthors(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, resultSetUpdateAuthors);
+                    resultSetUpdateAuthors = BenchmarkTestUpdateAuthors(count, resultSetUpdateAuthors);
                     break;
                 case 4:
                     Console.WriteLine($"\nBenchmarking {count} delete authors...");
-                    resultSetDeleteAuthors = BenchmarkTestDeleteAuthors(count, relationalOrmService, 
-                        relationalRawdoggingService, noSqlService, 
-                        resultSetDeleteAuthors);
+                    resultSetDeleteAuthors = BenchmarkTestDeleteAuthors(count, resultSetDeleteAuthors);
                     break;
             }
         }
     }
 
-    private static List<ResultSet> BenchmarkTestDeleteAuthors(int count, ServiceController relationalOrmService, ServiceController relationalRawdoggingService, ServiceController noSqlService, List<ResultSet> resultSetDeleteAuthors)
+    private static List<ResultSet> BenchmarkTestDeleteAuthors(int count, List<ResultSet> resultSetDeleteAuthors)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkDeleteAuthors(count, relationalOrmService)),
@@ -246,11 +240,13 @@ public static class BenchmarkConsole
         return resultSetDeleteAuthors;
     }
 
-    private static List<ResultSet> BenchmarkTestUpdateAuthors(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService, ServiceController noSqlService, List<ResultSet> resultSetUpdateAuthors)
+    private static List<ResultSet> BenchmarkTestUpdateAuthors(int count, List<ResultSet> resultSetUpdateAuthors)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkUpdateAuthors(count, relationalOrmService)),
@@ -280,11 +276,13 @@ public static class BenchmarkConsole
     }
 
     private static List<ResultSet> BenchmarkTestFetchOneAuthor(int count, int indexToGet,
-        ServiceController relationalOrmService, ServiceController relationalRawdoggingService,
-        ServiceController noSqlService, List<ResultSet> resultSetFetchOneAuthor)
+        List<ResultSet> resultSetFetchOneAuthor)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, relationalOrmService)),
@@ -313,12 +311,13 @@ public static class BenchmarkConsole
         return resultSetFetchOneAuthor;
     }
 
-    private static List<ResultSet> BenchmarkTestFetchAllAuthors(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService, ServiceController noSqlService,
-        List<ResultSet> resultSetFetchAllAuthors)
+    private static List<ResultSet> BenchmarkTestFetchAllAuthors(int count, List<ResultSet> resultSetFetchAllAuthors)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchAllAuthors(count, relationalOrmService)),
@@ -347,12 +346,13 @@ public static class BenchmarkConsole
         return resultSetFetchAllAuthors;
     }
 
-    private static List<ResultSet> BenchmarkTestInsertAuthors(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService, ServiceController noSqlService,
-        List<ResultSet> resultSetCreateAuthors)
+    private static List<ResultSet> BenchmarkTestInsertAuthors(int count, List<ResultSet> resultSetCreateAuthors)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkCreateAuthors(count, relationalOrmService)),
@@ -381,12 +381,13 @@ public static class BenchmarkConsole
         return resultSetCreateAuthors;
     }
 
-    private static List<ResultSet> BenchmarkTestDeleteArticles(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService, ServiceController noSqlService,
-        List<ResultSet> resultSetDeleteArticles)
+    private static List<ResultSet> BenchmarkTestDeleteArticles(int count, List<ResultSet> resultSetDeleteArticles)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkDeleteArticles(count, relationalOrmService)),
@@ -415,12 +416,13 @@ public static class BenchmarkConsole
         return resultSetDeleteArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestUpdateArticles(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService, ServiceController noSqlService,
-        List<ResultSet> resultSetUpdateArticles)
+    private static List<ResultSet> BenchmarkTestUpdateArticles(int count, List<ResultSet> resultSetUpdateArticles)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkUpdateArticles(count, relationalOrmService)),
@@ -449,12 +451,14 @@ public static class BenchmarkConsole
         return resultSetUpdateArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestFetchOneArticle(int count, int indexToGet,
-        ServiceController relationalOrmService, ServiceController relationalRawdoggingService,
-        ServiceController noSqlService, List<ResultSet> resultSetFetchOneArticles)
+    private static List<ResultSet> BenchmarkTestFetchOneArticle(int count, int indexToGet, 
+        List<ResultSet> resultSetFetchOneArticles)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, relationalOrmService)),
@@ -483,12 +487,13 @@ public static class BenchmarkConsole
         return resultSetFetchOneArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestFetchAllArticles(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService,
-        ServiceController noSqlService, List<ResultSet> resultSetFetchAllArticles)
+    private static List<ResultSet> BenchmarkTestFetchAllArticles(int count,  List<ResultSet> resultSetFetchAllArticles)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchAllArticles(count, relationalOrmService)),
@@ -517,12 +522,13 @@ public static class BenchmarkConsole
         return resultSetFetchAllArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestInsertArticles(int count, ServiceController relationalOrmService,
-        ServiceController relationalRawdoggingService,
-        ServiceController noSqlService, List<ResultSet> resultSetCreateArticles)
+    private static List<ResultSet> BenchmarkTestInsertArticles(int count, List<ResultSet> resultSetCreateArticles)
     {
         for (int index = 0; index < 3; index++)
         {
+            var relationalOrmService = new ServiceController(DatabaseType.Relational);
+            var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
+            var noSqlService = new ServiceController(DatabaseType.NoSql);
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkCreateArticles(count, relationalOrmService)),
