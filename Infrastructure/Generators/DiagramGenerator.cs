@@ -10,12 +10,14 @@ namespace Database_Benchmarking.Infrastructure.Generators
 {
     public class DiagramGenerator
     {
-        public static void GenerateDiagram(List<ResultSet> resultSets, string outputPath)
+        public static void GenerateDiagram(List<ResultSet> resultSets, string outputPath, string type)
         {
-            var plt = new ScottPlot.Plot(1200, 600);
-
             EnsureOutputDirectoryExists(outputPath);
 
+            ExportUnitsPerSecondTableAsImage(resultSets, outputPath, type);
+
+            var plt = new ScottPlot.Plot(1200, 600);
+            
             var batchGroups = resultSets
                 .GroupBy(r => r.BatchSize)
                 .OrderBy(g => g.Key)
@@ -112,7 +114,7 @@ namespace Database_Benchmarking.Infrastructure.Generators
                 }
             }
 
-            plt.SaveFig(outputPath);
+            plt.SaveFig(outputPath + "/" + type + "_diagram" + ".jpg");
             Console.WriteLine($"Diagram gemt til: {outputPath}");
         }
 
@@ -142,5 +144,79 @@ namespace Database_Benchmarking.Infrastructure.Generators
                 AvgColor = avgColor;
             }
         }
+        
+private static void ExportUnitsPerSecondTableAsImage(List<ResultSet> resultSets, string outputPath, string type)
+{
+    var batchGroups = resultSets
+        .GroupBy(r => r.BatchSize)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    var headers = new[] { "Batch Size", "EFCore (units/s)", "MongoDb (units/s)", "NpgSql (units/s)" };
+    var rows = new List<string[]>();
+
+    foreach (var group in batchGroups)
+    {
+        var ef = group.FirstOrDefault(r => r.IsAverage && r.EFCorePG > 0);
+        var mongo = group.FirstOrDefault(r => r.IsAverage && r.MongoDb > 0);
+        var npg = group.FirstOrDefault(r => r.IsAverage && r.NpgSql > 0);
+
+        double efUnitsPerSec = ef != null ? group.Key / (ef.EFCorePG / 1000.0) : 0;
+        double mongoUnitsPerSec = mongo != null ? group.Key / (mongo.MongoDb / 1000.0) : 0;
+        double npgUnitsPerSec = npg != null ? group.Key / (npg.NpgSql / 1000.0) : 0;
+
+        rows.Add(new[]
+        {
+            group.Key.ToString(),
+            $"{efUnitsPerSec:F2}",
+            $"{mongoUnitsPerSec:F2}",
+            $"{npgUnitsPerSec:F2}"
+        });
+    }
+
+    int cellPadding = 10;
+    int cellWidth = 180;
+    int cellHeight = 40;
+    int rowCount = rows.Count + 1;
+    int colCount = headers.Length;
+
+    int width = colCount * cellWidth;
+    int height = rowCount * cellHeight;
+
+    using Bitmap bmp = new(width, height);
+    using Graphics g = Graphics.FromImage(bmp);
+    g.Clear(Color.White);
+
+    using Pen pen = new(Color.Black, 1);
+    using Font font = new("Arial", 12);
+    using StringFormat sf = new()
+    {
+        Alignment = StringAlignment.Center,
+        LineAlignment = StringAlignment.Center
+    };
+
+    // Draw headers
+    for (int col = 0; col < colCount; col++)
+    {
+        Rectangle rect = new(col * cellWidth, 0, cellWidth, cellHeight);
+        g.DrawRectangle(pen, rect);
+        g.DrawString(headers[col], font, Brushes.Black, rect, sf);
+    }
+
+    // Draw rows
+    for (int row = 0; row < rows.Count; row++)
+    {
+        for (int col = 0; col < colCount; col++)
+        {
+            Rectangle rect = new(col * cellWidth, (row + 1) * cellHeight, cellWidth, cellHeight);
+            g.DrawRectangle(pen, rect);
+            g.DrawString(rows[row][col], font, Brushes.Black, rect, sf);
+        }
+    }
+
+    string filePath = Path.Combine(outputPath, type  + "_scheme" + ".png");
+    bmp.Save(filePath);
+}
+
     }
 }

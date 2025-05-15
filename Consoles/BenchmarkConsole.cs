@@ -1,4 +1,5 @@
-﻿using Database_Benchmarking.Consoles.SharedModels;
+﻿using System.Reflection;
+using Database_Benchmarking.Consoles.SharedModels;
 using Database_Benchmarking.Domain.Enums;
 using Database_Benchmarking.Domain.Service.Services;
 using Database_Benchmarking.Infrastructure.Generators;
@@ -206,11 +207,11 @@ public static class BenchmarkConsole
         }
         
                 
-        // Angiv stien til output PNG-fil
-        string outputPath = "C:\\results\\diagramq.png";
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..\"));
+        var outPutDirectory = Path.Combine(projectRoot, "results");
+        Directory.CreateDirectory(outPutDirectory);
 
-        // Kald DiagramGenerator's GenerateDiagram metode
-        DiagramGenerator.GenerateDiagram(resultSetCreateArticles, outputPath);
+        DiagramGenerator.GenerateDiagram(resultSetCreateArticles, outPutDirectory, "Create-Article");
 
     }
 
