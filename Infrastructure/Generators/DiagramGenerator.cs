@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using Database_Benchmarking.Consoles.SharedModels;
 using ScottPlot;
-using System.Drawing;
 
 namespace Database_Benchmarking.Infrastructure.Generators
 {
@@ -12,128 +12,135 @@ namespace Database_Benchmarking.Infrastructure.Generators
     {
         public static void GenerateDiagram(List<ResultSet> resultSets, string outputPath)
         {
-            var plt = new ScottPlot.Plot(800, 600);
+            var plt = new ScottPlot.Plot(1200, 600);
 
-            // Sørg for at output-mappen findes
-            var directory = Path.GetDirectoryName(outputPath);
-            if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
+            EnsureOutputDirectoryExists(outputPath);
 
-            // Filtrer batch groups for de normale målinger og gennemsnit
             var batchGroups = resultSets
                 .GroupBy(r => r.BatchSize)
                 .OrderBy(g => g.Key)
                 .ToList();
 
-            // Hvis batchGroups er tom, returner tidligt
-            if (!batchGroups.Any())
+            double barWidth = 0.012;
+            double innerSpacing = 0.01;
+            double groupSpacing = 0.02;
+
+            var series = new List<SeriesData>
             {
-                Console.WriteLine("Ingen batch grupper til at generere diagram.");
-                return;
-            }
+                new("EFCore", r => r.EFCorePG, Color.FromArgb(255, 99, 132), Color.FromArgb(160, 255, 99, 132)),
+                new("MongoDb", r => r.MongoDb, Color.FromArgb(75, 192, 192), Color.FromArgb(160, 75, 192, 192)),
+                new("NpgSql", r => r.NpgSql, Color.FromArgb(54, 162, 235), Color.FromArgb(160, 54, 162, 235))
+            };
 
-            string[] batchSizeLabels = batchGroups.Select(g => g.Key.ToString()).ToArray();
-            double[] positions = Enumerable.Range(0, batchGroups.Count).Select(i => (double)i).ToArray();
-
-            // For hver batch størrelse, lav separate målinger og gennemsnit
-            List<double> efCore = new List<double>();
-            List<double> npgSql = new List<double>();
-            List<double> mongoDb = new List<double>();
-            List<double> efCoreAvg = new List<double>();
-            List<double> npgSqlAvg = new List<double>();
-            List<double> mongoDbAvg = new List<double>();
+            double currentX = 0;
+            var xTicks = new List<(double, string)>();
 
             foreach (var group in batchGroups)
             {
-                var groupData = group.ToList();
+                int countBefore = series.Sum(s => s.Positions.Count + s.AvgPositions.Count);
 
-                // Filtrer de normale målinger
-                var normalData = groupData.Where(r => !r.IsAverage).ToList();
-                // Find gennemsnittet for hver batch
-                var averageData = groupData.FirstOrDefault(r => r.IsAverage);
-
-                // Tilføj data til målingerne
-                efCore.AddRange(normalData.Select(r => r.EFCorePG / 1000.0));
-                npgSql.AddRange(normalData.Select(r => r.NpgSql / 1000.0));
-                mongoDb.AddRange(normalData.Select(r => r.MongoDb / 1000.0));
-
-                // Hvis gennemsnittet findes, tilføj det som en ekstra søjle
-                if (averageData != null)
+                foreach (var s in series)
                 {
-                    efCoreAvg.Add(averageData.EFCorePG / 1000.0);
-                    npgSqlAvg.Add(averageData.NpgSql / 1000.0);
-                    mongoDbAvg.Add(averageData.MongoDb / 1000.0);
+                    // Regular entries
+                    foreach (var r in group.Where(r => !r.IsAverage && s.Selector(r) > 0))
+                    {
+                        s.Values.Add(s.Selector(r) / 1000.0);
+                        s.Positions.Add(currentX);
+                        currentX += barWidth + innerSpacing;
+                    }
+
+                    // Average entry
+                    var avg = group.FirstOrDefault(r => r.IsAverage && s.Selector(r) > 0);
+                    if (avg != null)
+                    {
+                        s.AvgValues.Add(s.Selector(avg) / 1000.0);
+                        s.AvgPositions.Add(currentX);
+                        currentX += barWidth + innerSpacing;
+                    }
                 }
-                else
-                {
-                    // Hvis ingen gennemsnit, tilføj tomme data for gennemsnittene
-                    efCoreAvg.Add(0);
-                    npgSqlAvg.Add(0);
-                    mongoDbAvg.Add(0);
-                }
+
+                int countAfter = series.Sum(s => s.Positions.Count + s.AvgPositions.Count);
+
+                double groupMid = series
+                    .SelectMany(s => s.Positions.Concat(s.AvgPositions))
+                    .Skip(countBefore)
+                    .Take(countAfter - countBefore)
+                    .DefaultIfEmpty(currentX)
+                    .Average();
+
+                xTicks.Add((groupMid, group.Key.ToString()));
+                currentX += groupSpacing;
             }
 
-            // Kontroller om alle lister har samme længde
-            int dataCount = efCore.Count;
-            if (dataCount != npgSql.Count || dataCount != mongoDb.Count || dataCount != efCoreAvg.Count || dataCount != npgSqlAvg.Count || dataCount != mongoDbAvg.Count)
+            // Legg til plott
+            foreach (var s in series)
             {
-                Console.WriteLine("Fejl: Mængden af data for målinger og gennemsnit stemmer ikke overens.");
-                return;
+                var p1 = plt.AddBar(s.Values.ToArray(), s.Positions.ToArray());
+                p1.Label = s.Name;
+                p1.FillColor = s.Color;
+                p1.BarWidth = barWidth;
+
+                var p2 = plt.AddBar(s.AvgValues.ToArray(), s.AvgPositions.ToArray());
+                p2.Label = $"{s.Name} (avg)";
+                p2.FillColor = s.AvgColor;
+                p2.BarWidth = barWidth;
             }
 
-            // Definér barWidth for at gøre søjlerne smallere
-            double barWidth = 0.1; // Smallere søjler
-            double spacing = 0.15; // Afstand mellem grupper af søjler
-
-            // Tilføj bar plots med justerede positioner for at skabe smalere søjler
-            var efCorePlot = plt.AddBar(efCore.ToArray(),
-                positions.Select(p => p - 1.5 * (barWidth + spacing)).ToArray());
-            efCorePlot.Label = "EFCore";
-            efCorePlot.FillColor = Color.FromArgb(255, 99, 132);
-            efCorePlot.BarWidth = barWidth;
-
-            var npgSqlPlot = plt.AddBar(npgSql.ToArray(),
-                positions.Select(p => p - 0.5 * (barWidth + spacing)).ToArray());
-            npgSqlPlot.Label = "NpgSql";
-            npgSqlPlot.FillColor = Color.FromArgb(54, 162, 235);
-            npgSqlPlot.BarWidth = barWidth;
-
-            var mongoDbPlot = plt.AddBar(mongoDb.ToArray(),
-                positions.Select(p => p + 0.5 * (barWidth + spacing)).ToArray());
-            mongoDbPlot.Label = "MongoDb";
-            mongoDbPlot.FillColor = Color.FromArgb(75, 192, 192);
-            mongoDbPlot.BarWidth = barWidth;
-
-            // Tilføj gennemsnitsmålinger som en separat søjle
-            var efCoreAvgPlot = plt.AddBar(efCoreAvg.ToArray(),
-                positions.Select(p => p - 1.5 * (barWidth + spacing) + 0.25).ToArray());
-            efCoreAvgPlot.Label = "EFCore Gennemsnit";
-            efCoreAvgPlot.FillColor = Color.FromArgb(255, 159, 64);
-            efCoreAvgPlot.BarWidth = barWidth;
-
-            var npgSqlAvgPlot = plt.AddBar(npgSqlAvg.ToArray(),
-                positions.Select(p => p - 0.5 * (barWidth + spacing) + 0.25).ToArray());
-            npgSqlAvgPlot.Label = "NpgSql Gennemsnit";
-            npgSqlAvgPlot.FillColor = Color.FromArgb(255, 159, 64);
-            npgSqlAvgPlot.BarWidth = barWidth;
-
-            var mongoDbAvgPlot = plt.AddBar(mongoDbAvg.ToArray(),
-                positions.Select(p => p + 0.5 * (barWidth + spacing) + 0.25).ToArray());
-            mongoDbAvgPlot.Label = "MongoDb Gennemsnit";
-            mongoDbAvgPlot.FillColor = Color.FromArgb(255, 159, 64);
-            mongoDbAvgPlot.BarWidth = barWidth;
-
-            // Akse- og plot-indstillinger
-            plt.XTicks(positions, batchSizeLabels);
+            plt.XTicks(xTicks.Select(x => x.Item1).ToArray(), xTicks.Select(x => x.Item2).ToArray());
             plt.XLabel("Batch Size");
             plt.YLabel("Tid (sekunder)");
-            plt.Title(resultSets[0].TestType);
+            plt.Title(resultSets.First().TestType);
             plt.Legend(location: Alignment.UpperRight);
             plt.SetAxisLimits(yMin: 0);
 
-            // Gem diagrammet
+            // Legg til annotasjoner for avg / 100
+            foreach (var group in batchGroups)
+            {
+                foreach (var s in series)
+                {
+                    var avg = group.FirstOrDefault(r => r.IsAverage && s.Selector(r) > 0);
+                    if (avg != null)
+                    {
+                        double msPer100 = (s.Selector(avg) / (double)group.Key) * 100;
+                        int idx = s.AvgValues.IndexOf(s.Selector(avg) / 1000.0);
+                        if (idx >= 0)
+                        {
+                            double xpos = s.AvgPositions[idx];
+                            plt.AddText($"{msPer100:F1} ms / 100", xpos, -0.02, 10, s.Color);
+                        }
+                    }
+                }
+            }
+
             plt.SaveFig(outputPath);
             Console.WriteLine($"Diagram gemt til: {outputPath}");
+        }
+
+        private static void EnsureOutputDirectoryExists(string outputPath)
+        {
+            var directory = Path.GetDirectoryName(outputPath);
+            if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+        }
+
+        private class SeriesData
+        {
+            public string Name { get; }
+            public Func<ResultSet, double> Selector { get; }
+            public Color Color { get; }
+            public Color AvgColor { get; }
+            public List<double> Values { get; } = new();
+            public List<double> Positions { get; } = new();
+            public List<double> AvgValues { get; } = new();
+            public List<double> AvgPositions { get; } = new();
+
+            public SeriesData(string name, Func<ResultSet, double> selector, Color color, Color avgColor)
+            {
+                Name = name;
+                Selector = selector;
+                Color = color;
+                AvgColor = avgColor;
+            }
         }
     }
 }

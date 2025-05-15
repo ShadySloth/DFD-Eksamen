@@ -1,6 +1,7 @@
 ﻿using Database_Benchmarking.Consoles.SharedModels;
 using Database_Benchmarking.Domain.Enums;
 using Database_Benchmarking.Domain.Service.Services;
+using Database_Benchmarking.Infrastructure.Generators;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Database_Benchmarking.Consoles;
@@ -177,7 +178,7 @@ public static class BenchmarkConsole
                     break;
             }
         }
-        
+
         Console.WriteLine("\n---------------------------------------------");
         
         for (int indexTest = 0; indexTest < 5; indexTest++)
@@ -212,6 +213,14 @@ public static class BenchmarkConsole
                     break;
             }
         }
+        
+                
+        // Angiv stien til output PNG-fil
+        string outputPath = "C:\\results\\diagramq.png";
+
+        // Kald DiagramGenerator's GenerateDiagram metode
+        DiagramGenerator.GenerateDiagram(resultSetCreateArticles, outputPath);
+
     }
 
     private static List<ResultSet> BenchmarkTestDeleteAuthors(int count, ServiceController relationalOrmService, ServiceController relationalRawdoggingService, ServiceController noSqlService, List<ResultSet> resultSetDeleteAuthors)
