@@ -28,12 +28,13 @@ public static class BenchmarkConsole
             Console.WriteLine("  3. NoSQL");
             Console.WriteLine();
 
-            var choice = GetValidInput(["0","1", "2", "3"]);
+            var choice = GetValidInput(["0", "1", "2", "3"]);
 
             switch (choice)
             {
                 case "0":
-                    BenchmarkAll();
+                    var inputs = GetMultipleNumbersInput();
+                    BenchmarkAll(inputs.Numbers, inputs.Indexes);
                     break;
                 case "1":
                     Benchmark(DatabaseType.Relational);
@@ -60,11 +61,10 @@ public static class BenchmarkConsole
     private static string GetValidInput(string[] validInputs)
     {
         string input;
-        
+
         Console.Write("Your choice: ");
         do
         {
-            
             input = Console.ReadLine()!;
             if (input == "q")
             {
@@ -88,13 +88,13 @@ public static class BenchmarkConsole
             Console.Write("Your choice: ");
 
             var input = Console.ReadLine();
-            
+
             if (input == "q")
             {
                 Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
-            
+
             if (int.TryParse(input, out var number))
             {
                 return number;
@@ -103,7 +103,41 @@ public static class BenchmarkConsole
             Console.WriteLine("Invalid input. Please enter a number.");
         }
     }
-    
+
+    private static (List<int> Numbers, List<int> Indexes) GetMultipleNumbersInput()
+    {
+        List<int> numbers;
+        Console.WriteLine("\nEnter the number of records to benchmark seperated by commas (e.g. 1,2,3):");
+
+        while (true)
+        {
+            Console.Write("Your choice: ");
+            var input = Console.ReadLine();
+            if (input == "q")
+            {
+                Console.WriteLine("Quitting the application. Goodbye!");
+                Environment.Exit(0);
+            }
+
+            if (input != null)
+            {
+                var inputs = input.Split(",");
+
+                if (inputs.All(i => int.TryParse(i.Trim(), out _)))
+                {
+                    numbers = inputs.Select(i => int.Parse(i.Trim())).ToList();
+                    break;
+                }
+            }
+
+            Console.WriteLine("Invalid input. Please enter a list of numbers.");
+        }
+
+        var indexes = numbers.Select(GetIndexInput).ToList();
+
+        return (numbers, indexes);
+    }
+
     private static int GetIndexInput(int count)
     {
         Console.WriteLine("\nEnter the index of the record to benchmark.");
@@ -112,13 +146,13 @@ public static class BenchmarkConsole
             Console.Write($"Index to find (must be smaller than {count}: ");
 
             var input = Console.ReadLine();
-            
+
             if (input == "q")
             {
                 Console.WriteLine("Quitting the application. Goodbye!");
                 Environment.Exit(0);
             }
-            
+
             if (int.TryParse(input, out var number) && number < count)
             {
                 return number;
@@ -128,91 +162,89 @@ public static class BenchmarkConsole
         }
     }
 
-    private static void BenchmarkAll()
+    private static void BenchmarkAll(List<int> counts, List<int> indexes)
     {
         var relationalOrmService = new ServiceController(DatabaseType.Relational);
         var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
         var noSqlService = new ServiceController(DatabaseType.NoSql);
 
-        var count = GetNumberInput();
-        var indexToGet = GetIndexInput(count);
-        
-        Console.WriteLine("\nBenchmarking All...");
-        var resultSetCreateArticles = new List<ResultSet>();
-        var resultSetCreateAuthors = new List<ResultSet>();
-        var resultSetFetchAllArticles = new List<ResultSet>();
-        var resultSetFetchAllAuthors = new List<ResultSet>();
-        var resultSetFetchOneArticle = new List<ResultSet>();
-        var resultSetFetchOneAuthor = new List<ResultSet>();
-        var resultSetUpdateArticles = new List<ResultSet>();
-        var resultSetUpdateAuthors = new List<ResultSet>();
-        var resultSetDeleteArticles = new List<ResultSet>();
-        var resultSetDeleteAuthors = new List<ResultSet>();
-        
-        for (int indexTest = 0; indexTest < 5; indexTest++)
+        foreach (var count in counts)
         {
-            switch (indexTest)
+            var indexToGet = indexes[counts.IndexOf(count)];
+
+            Console.WriteLine("\nBenchmarking All...");
+            var resultSetCreateArticles = new List<ResultSet>();
+            var resultSetCreateAuthors = new List<ResultSet>();
+            var resultSetFetchAllArticles = new List<ResultSet>();
+            var resultSetFetchAllAuthors = new List<ResultSet>();
+            var resultSetFetchOneArticle = new List<ResultSet>();
+            var resultSetFetchOneAuthor = new List<ResultSet>();
+            var resultSetUpdateArticles = new List<ResultSet>();
+            var resultSetUpdateAuthors = new List<ResultSet>();
+            var resultSetDeleteArticles = new List<ResultSet>();
+            var resultSetDeleteAuthors = new List<ResultSet>();
+
+            for (int indexTest = 0; indexTest < 5; indexTest++)
             {
-                case 0:
-                    Console.WriteLine($"\nBenchmarking {count} insert articles...");
-                    resultSetCreateArticles = BenchmarkTestInsertArticles(count, resultSetCreateArticles);
-                    break;
-                case 1:
-                    Console.WriteLine($"\nBenchmarking {count} query all articles...");
-                    resultSetFetchAllArticles = BenchmarkTestFetchAllArticles(count, resultSetFetchAllArticles);
-                    break;
-                case 2:
-                    Console.WriteLine($"\nBenchmarking {count} query one article...");
-                    resultSetFetchOneArticle = BenchmarkTestFetchOneArticle(count, indexToGet, 
-                        resultSetFetchOneArticle);
-                    break;
-                case 3:
-                    Console.WriteLine($"\nBenchmarking {count} update articles...");
-                    resultSetUpdateArticles = BenchmarkTestUpdateArticles(count, resultSetUpdateArticles);
-                    break;
-                case 4:
-                    Console.WriteLine($"\nBenchmarking {count} delete articles...");
-                    resultSetDeleteArticles = BenchmarkTestDeleteArticles(count, resultSetDeleteArticles);
-                    break;
+                switch (indexTest)
+                {
+                    case 0:
+                        Console.WriteLine($"\nBenchmarking {count} insert articles...");
+                        resultSetCreateArticles = BenchmarkTestInsertArticles(count, resultSetCreateArticles);
+                        break;
+                    case 1:
+                        Console.WriteLine($"\nBenchmarking {count} query all articles...");
+                        resultSetFetchAllArticles = BenchmarkTestFetchAllArticles(count, resultSetFetchAllArticles);
+                        break;
+                    case 2:
+                        Console.WriteLine($"\nBenchmarking {count} query one article...");
+                        resultSetFetchOneArticle = BenchmarkTestFetchOneArticle(count, indexToGet,
+                            resultSetFetchOneArticle);
+                        break;
+                    case 3:
+                        Console.WriteLine($"\nBenchmarking {count} update articles...");
+                        resultSetUpdateArticles = BenchmarkTestUpdateArticles(count, resultSetUpdateArticles);
+                        break;
+                    case 4:
+                        Console.WriteLine($"\nBenchmarking {count} delete articles...");
+                        resultSetDeleteArticles = BenchmarkTestDeleteArticles(count, resultSetDeleteArticles);
+                        break;
+                }
             }
-        }
 
-        Console.WriteLine("\n---------------------------------------------");
-        
-        for (int indexTest = 0; indexTest < 5; indexTest++)
-        {
-            switch (indexTest)
+
+            Console.WriteLine("\n---------------------------------------------");
+
+            for (int indexTest = 0; indexTest < 5; indexTest++)
             {
-                case 0:
-                    Console.WriteLine($"\nBenchmarking {count} insert authors...");
-                    resultSetCreateAuthors = BenchmarkTestInsertAuthors(count, resultSetCreateAuthors);
-                    break;
-                case 1:
-                    Console.WriteLine($"\nBenchmarking {count} query all authors...");
-                    resultSetFetchAllAuthors = BenchmarkTestFetchAllAuthors(count, resultSetFetchAllAuthors);
-                    break;
-                case 2:
-                    Console.WriteLine($"\nBenchmarking {count} query one author...");
-                    resultSetFetchOneAuthor = BenchmarkTestFetchOneAuthor(count, indexToGet, resultSetFetchOneAuthor);
-                    break;
-                case 3:
-                    Console.WriteLine($"\nBenchmarking {count} update authors...");
-                    resultSetUpdateAuthors = BenchmarkTestUpdateAuthors(count, resultSetUpdateAuthors);
-                    break;
-                case 4:
-                    Console.WriteLine($"\nBenchmarking {count} delete authors...");
-                    resultSetDeleteAuthors = BenchmarkTestDeleteAuthors(count, resultSetDeleteAuthors);
-                    break;
+                switch (indexTest)
+                {
+                    case 0:
+                        Console.WriteLine($"\nBenchmarking {count} insert authors...");
+                        resultSetCreateAuthors = BenchmarkTestInsertAuthors(count, resultSetCreateAuthors);
+                        break;
+                    case 1:
+                        Console.WriteLine($"\nBenchmarking {count} query all authors...");
+                        resultSetFetchAllAuthors = BenchmarkTestFetchAllAuthors(count, resultSetFetchAllAuthors);
+                        break;
+                    case 2:
+                        Console.WriteLine($"\nBenchmarking {count} query one author...");
+                        resultSetFetchOneAuthor =
+                            BenchmarkTestFetchOneAuthor(count, indexToGet, resultSetFetchOneAuthor);
+                        break;
+                    case 3:
+                        Console.WriteLine($"\nBenchmarking {count} update authors...");
+                        resultSetUpdateAuthors = BenchmarkTestUpdateAuthors(count, resultSetUpdateAuthors);
+                        break;
+                    case 4:
+                        Console.WriteLine($"\nBenchmarking {count} delete authors...");
+                        resultSetDeleteAuthors = BenchmarkTestDeleteAuthors(count, resultSetDeleteAuthors);
+                        break;
+                }
             }
+            
         }
         
-                
-        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..\"));
-        var outPutDirectory = Path.Combine(projectRoot, "results");
-        Directory.CreateDirectory(outPutDirectory);
-
-        DiagramGenerator.GenerateDiagram(resultSetCreateArticles, outPutDirectory, "Create-Article");
-
     }
 
     private static List<ResultSet> BenchmarkTestDeleteAuthors(int count, List<ResultSet> resultSetDeleteAuthors)
@@ -296,7 +328,8 @@ public static class BenchmarkConsole
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, relationalOrmService)),
-                NpgSql = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, relationalRawdoggingService)),
+                NpgSql = GetRoundedMilliseconds(
+                    BenchmarkFetchOneAuthors(count, indexToGet, relationalRawdoggingService)),
                 MongoDb = GetRoundedMilliseconds(BenchmarkFetchOneAuthors(count, indexToGet, noSqlService)),
                 TestType = "FetchOneAuthors",
                 BatchSize = count,
@@ -461,7 +494,7 @@ public static class BenchmarkConsole
         return resultSetUpdateArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestFetchOneArticle(int count, int indexToGet, 
+    private static List<ResultSet> BenchmarkTestFetchOneArticle(int count, int indexToGet,
         List<ResultSet> resultSetFetchOneArticles)
     {
         for (int index = 0; index < 3; index++)
@@ -472,7 +505,8 @@ public static class BenchmarkConsole
             var resultSet = new ResultSet
             {
                 EFCorePG = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, relationalOrmService)),
-                NpgSql = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, relationalRawdoggingService)),
+                NpgSql = GetRoundedMilliseconds(
+                    BenchmarkFetchOneArticle(count, indexToGet, relationalRawdoggingService)),
                 MongoDb = GetRoundedMilliseconds(BenchmarkFetchOneArticle(count, indexToGet, noSqlService)),
                 TestType = "FetchOneArticles",
                 BatchSize = count,
@@ -497,7 +531,7 @@ public static class BenchmarkConsole
         return resultSetFetchOneArticles;
     }
 
-    private static List<ResultSet> BenchmarkTestFetchAllArticles(int count,  List<ResultSet> resultSetFetchAllArticles)
+    private static List<ResultSet> BenchmarkTestFetchAllArticles(int count, List<ResultSet> resultSetFetchAllArticles)
     {
         for (int index = 0; index < 3; index++)
         {
@@ -583,7 +617,7 @@ public static class BenchmarkConsole
         var choice = GetValidInput(["1", "2", "3", "4", "5", "6"]);
 
         Console.WriteLine();
-        
+
         var count = 0;
         var indexToGet = 0;
         switch (choice)
@@ -601,7 +635,7 @@ public static class BenchmarkConsole
             case "3":
                 count = GetNumberInput();
                 indexToGet = GetIndexInput(count);
-                time = BenchmarkFetchOne(count, indexToGet,service);
+                time = BenchmarkFetchOne(count, indexToGet, service);
                 Console.WriteLine($"\nTotal time taken: {GetRoundedMilliseconds(time)} ms.");
                 break;
             case "4":
@@ -657,7 +691,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;
     }
-    
+
     private static TimeSpan BenchmarkFetchOne(int count, int indexToGet, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet}...");
@@ -677,7 +711,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time2)} ms.");
         return time + time2;
     }
-    
+
     private static TimeSpan BenchmarkCreateArticles(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Inserts using {service.ToString()}...");
@@ -685,6 +719,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
+
     private static TimeSpan BenchmarkCreateAuthors(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Inserts using {service.ToString()}...");
@@ -692,7 +727,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkFetchAllArticles(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetches using {service.ToString()}...");
@@ -700,7 +735,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkFetchAllAuthors(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetches using {service.ToString()}...");
@@ -708,7 +743,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkFetchOneArticle(int count, int indexToGet, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet} using {service.ToString()}...");
@@ -716,7 +751,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkFetchOneAuthors(int count, int indexToGet, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Fetching number {indexToGet} using {service.ToString()}...");
@@ -724,7 +759,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkUpdateArticles(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Updates using {service.ToString()}...");
@@ -732,7 +767,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkUpdateAuthors(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Updates using {service.ToString()}...");
@@ -740,7 +775,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for authors: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkDeleteArticles(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Deletes using {service.ToString()}...");
@@ -748,7 +783,7 @@ public static class BenchmarkConsole
         Console.WriteLine($"  Time taken for articles: {GetRoundedMilliseconds(time)} ms.");
         return time;
     }
-    
+
     private static TimeSpan BenchmarkDeleteAuthors(int count, ServiceController service)
     {
         Console.WriteLine($"\nBenchmarking {count} Deletes using {service.ToString()}...");
