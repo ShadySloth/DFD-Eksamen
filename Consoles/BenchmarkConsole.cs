@@ -33,8 +33,8 @@ public static class BenchmarkConsole
             switch (choice)
             {
                 case "0":
-                    var inputs = GetMultipleNumbersInput();
-                    BenchmarkAll(inputs.Numbers, inputs.Indexes);
+                    //var inputs = GetMultipleNumbersInput();
+                    BenchmarkAll();
                     break;
                 case "1":
                     Benchmark(DatabaseType.Relational);
@@ -162,27 +162,26 @@ public static class BenchmarkConsole
         }
     }
 
-    private static void BenchmarkAll(List<int> counts, List<int> indexes)
+    private static void BenchmarkAll()
     {
-        var relationalOrmService = new ServiceController(DatabaseType.Relational);
-        var relationalRawdoggingService = new ServiceController(DatabaseType.RelationalRawdogging);
-        var noSqlService = new ServiceController(DatabaseType.NoSql);
+        var resultSetCreateArticles = new List<ResultSet>();
+        var resultSetCreateAuthors = new List<ResultSet>();
+        var resultSetFetchAllArticles = new List<ResultSet>();
+        var resultSetFetchAllAuthors = new List<ResultSet>();
+        var resultSetFetchOneArticle = new List<ResultSet>();
+        var resultSetFetchOneAuthor = new List<ResultSet>();
+        var resultSetUpdateArticles = new List<ResultSet>();
+        var resultSetUpdateAuthors = new List<ResultSet>();
+        var resultSetDeleteArticles = new List<ResultSet>();
+        var resultSetDeleteAuthors = new List<ResultSet>();
 
+
+        List<int> counts = [1000,10000,100000];
         foreach (var count in counts)
         {
-            var indexToGet = indexes[counts.IndexOf(count)];
+            var indexToGet = count-2;
 
             Console.WriteLine("\nBenchmarking All...");
-            var resultSetCreateArticles = new List<ResultSet>();
-            var resultSetCreateAuthors = new List<ResultSet>();
-            var resultSetFetchAllArticles = new List<ResultSet>();
-            var resultSetFetchAllAuthors = new List<ResultSet>();
-            var resultSetFetchOneArticle = new List<ResultSet>();
-            var resultSetFetchOneAuthor = new List<ResultSet>();
-            var resultSetUpdateArticles = new List<ResultSet>();
-            var resultSetUpdateAuthors = new List<ResultSet>();
-            var resultSetDeleteArticles = new List<ResultSet>();
-            var resultSetDeleteAuthors = new List<ResultSet>();
 
             for (int indexTest = 0; indexTest < 5; indexTest++)
             {
